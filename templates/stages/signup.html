@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}
+    {% if user_type == 'etudiant' %}
+        {% trans "Inscription Étudiant" %}
+    {% elif user_type == 'responsable' %}
+        {% trans "Inscription Responsable" %}
+    {% else %}
+        {% trans "Inscription Entreprise" %}
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7 col-lg-6">
+        <div class="card shadow-sm border-0">
+            <div class="card-body p-4">
+                <h2 class="card-title text-center mb-4">
+                    {% if user_type == 'etudiant' %}
+                        <i class="bi bi-person-workspace"></i> {% trans "Inscription Étudiant" %}
+                    {% elif user_type == 'responsable' %}
+                        <i class="bi bi-person-gear"></i> {% trans "Inscription Responsable" %}
+                    {% else %}
+                        <i class="bi bi-building-add"></i> {% trans "Inscription Entreprise" %}
+                    {% endif %}
+                </h2>
+                <form method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
+                    {% csrf_token %}
+                    <div class="row g-3">
+                        {{ form|crispy }}
+                    </div>
+                    <div class="d-grid gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="bi bi-person-plus"></i> {% trans "S'inscrire" %}
+                        </button>
+                    </div>
+                </form>
+                <style>
+                  .password-toggle-btn {
+                    position: absolute;
+                    top: 50%;
+                    right: 0.75rem;
+                    transform: translateY(-50%);
+                    color: #192850;
+                    background: none;
+                    border: none;
+                    padding: 0;
+                    margin: 0;
+                    z-index: 10;
+                    font-size: 1.2rem;
+                  }
+                  .password-toggle-btn:focus {
+                    outline: none;
+                    box-shadow: none;
+                  }
+                </style>
+                <script>
+                  document.addEventListener('DOMContentLoaded', function() {
+                    ['id_password1', 'id_password2'].forEach(function(id) {
+                      var input = document.getElementById(id);
+                      if (input) {
+                        input.parentElement.classList.add('position-relative');
+                        var btn = document.createElement('button');
+                        btn.type = 'button';
+                        btn.tabIndex = -1;
+                        btn.className = 'password-toggle-btn';
+                        btn.innerHTML = '<i class="bi bi-eye-slash" id="icon-'+id+'"></i>';
+                        btn.onclick = function(e) {
+                          e.preventDefault();
+                          if (input.type === 'password') {
+                            input.type = 'text';
+                            btn.innerHTML = '<i class="bi bi-eye" id="icon-'+id+'"></i>';
+                          } else {
+                            input.type = 'password';
+                            btn.innerHTML = '<i class="bi bi-eye-slash" id="icon-'+id+'"></i>';
+                          }
+                        };
+                        input.parentElement.appendChild(btn);
+                      }
+                    });
+                  });
+                </script>
+                <div class="text-center mt-4">
+                    <p class="mb-0">
+                        {% trans "Déjà inscrit ?" %}
+                        <a href="{% url 'account_login' %}" class="text-decoration-none">
+                            {% trans "Connectez-vous" %}
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Validation des formulaires
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+
+    // Prévisualisation du CV
+    const cvInput = document.getElementById('id_cv');
+    if (cvInput) {
+        cvInput.addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            if (fileName) {
+                const label = e.target.nextElementSibling;
+                if (label) {
+                    label.textContent = fileName;
+                }
+            }
+        });
+    }
+
+    // Prévisualisation du logo
+    const logoInput = document.getElementById('id_logo');
+    if (logoInput) {
+        logoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.createElement('img');
+                    preview.src = e.target.result;
+                    preview.style.maxWidth = '200px';
+                    preview.style.marginTop = '10px';
+                    const container = e.target.parentElement;
+                    const existingPreview = container.querySelector('img');
+                    if (existingPreview) {
+                        existingPreview.remove();
+                    }
+                    container.appendChild(preview);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+</script>
+{% endblock %} 

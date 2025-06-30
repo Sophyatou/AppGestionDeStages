@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}Plateforme de gestion de stages{% endblock %}">
+    <title>{% block title %}Gestion de Stages{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary-color: #1b3652;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --text-color: #2c3e50;
+            --light-bg: #f8f9fa;
+            --success-color: #2ecc71;
+            --warning-color: #f1c40f;
+            --danger-color: #e74c3c;
+        }
+
+        html {
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        *, *:before, *:after {
+            box-sizing: inherit;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: var(--text-color);
+            background-color: var(--light-bg);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .main-content {
+            width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        @media (max-width: 1440px) {
+            .container,
+            .main-content {
+                max-width: 95%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container,
+            .main-content {
+                max-width: 100%;
+                padding: 0 0.5rem;
+            }
+
+            body {
+                font-size: 0.9rem;
+            }
+        }
+
+        .navbar {
+            background-color: white;
+            /* border-bottom: 1px solid rgba(0,0,0,0.1); */
+            padding: 1rem 0;
+        }
+
+        .navbar-brand {
+            color: var(--primary-color) !important;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link {
+            color: var(--text-color) !important;
+            transition: color 0.3s ease;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-link:hover {
+            color: var(--secondary-color) !important;
+        }
+
+        .card {
+            border: none;
+            border-radius: 10px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary {
+            background-color: #353c4f;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 5px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-primary:hover {
+            background-color: #6e727d;
+            transform: translateY(-2px);
+        }
+
+        .form-control {
+            border-radius: 5px;
+            border: 1px solid rgba(0,0,0,0.1);
+            padding: 0.75rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+        }
+
+        .alert {
+            border-radius: 5px;
+            border: none;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .alert-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .alert-warning {
+            background-color: var(--warning-color);
+            color: var(--text-color);
+        }
+
+        .alert-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        main {
+            flex: 1;
+            padding: 2rem 0;
+        }
+
+        .footer {
+            background-color: white;
+            border-top: 1px solid rgba(0,0,0,0.1);
+            padding: 1.5rem 0;
+            margin-top: auto;
+        }
+
+        /* Animations */
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+            opacity: 0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Accessibilité */
+        .visually-hidden {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        /* Focus styles */
+        a:focus, button:focus, input:focus, select:focus, textarea:focus {
+            outline: 2px solid var(--secondary-color);
+            outline-offset: 2px;
+        }
+    </style>
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-light" role="navigation" aria-label="Navigation principale">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'stages:home' %}" aria-label="Accueil">
+                <i class="fas fa-graduation-cap" aria-hidden="true"></i>
+                <span>Career Step</span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" 
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Basculer la navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item d-flex align-items-center gap-3 position-relative">
+                            <div class="d-flex align-items-center gap-2 position-relative">
+                                <div class="dropdown">
+                                    <a href="#" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false" class="d-flex align-items-center text-decoration-none">
+                                        {% if user.profile.photo %}
+                                            <img src="{{ user.profile.photo.url }}" alt="Photo de profil" class="rounded-circle" style="width:56px;height:56px;object-fit:cover;">
+                                        {% else %}
+                                            <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:56px;height:56px;font-size:1.3rem;">
+                                                {{ user.first_name|slice:':1' }}{{ user.last_name|slice:':1' }}
+                                            </div>
+                                        {% endif %}
+                                        <button class="notif-bell btn btn-link p-0 ms-2" type="button" style="font-size:1.2rem;position:relative;">
+                                            <i class="fas fa-bell"></i>
+                                            {% if notifications_non_lues > 0 %}
+                                                <span class="badge bg-danger" style="position:absolute;top:-6px;right:-8px;">{{ notifications_non_lues }}</span>
+                                            {% endif %}
+                                        </button>
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown" style="min-width:320px;">
+                                        <li class="px-3 py-2">
+                                            <div style="font-weight:600;">{{ user.get_full_name }}</div>
+                                            {% if user.profile.user_type == 'etudiant' and etudiant %}
+                                                <div style="font-size:0.95rem;color:#888;">{{ etudiant.niveau }}</div>
+                                            {% endif %}
+                                        </li>
+                                        <li><hr class="dropdown-divider"></li>
+                                        {% if notifications %}
+                                            {% for notif in notifications|slice:":5" %}
+                                                <li class="px-3 py-2 small">
+                                                    <div style="font-weight:500;">{{ notif.message|truncatechars:50 }}</div>
+                                                    <div class="text-muted" style="font-size:0.85em;">{{ notif.date_creation|date:"d/m/Y H:i" }}</div>
+                                                </li>
+                                            {% empty %}
+                                                <li class="px-3 py-2 text-muted">Aucune notification</li>
+                                            {% endfor %}
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li><a class="dropdown-item text-center" href="{% url 'stages:notifications' %}">Voir toutes les notifications</a></li>
+                                        {% endif %}
+                                        <li><hr class="dropdown-divider"></li>
+                                        <li><a class="dropdown-item" href="{% url 'stages:profil' %}"><i class="fas fa-user me-2"></i>Voir mon profil</a></li>
+                                        <li><a class="dropdown-item" href="{% url 'account_logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'account_login' %}" aria-label="Connexion">
+                                <i class="fas fa-sign-in-alt" aria-hidden="true"></i>
+                                <span>Connexion</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'stages:signup_choice' %}" aria-label="Inscription">
+                                <i class="fas fa-user-plus" aria-hidden="true"></i>
+                                <span>Inscription</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Messages -->
+    {% if messages %}
+        <div class="container mt-3" role="alert" aria-live="polite">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}times-circle{% endif %}" aria-hidden="true"></i>
+                    <span>{{ message }}</span>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- Main Content -->
+    <div class="container main-content">
+        <div class="row g-0">
+            {% block sidebar %}{% endblock %}
+            <main class="col-12 col-md-auto flex-grow-1" id="main-content">
+                <div class="px-3 py-4">
+                    {% block content %}{% endblock %}
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <div class="container text-center">
+            <p class="mb-0">&copy; {% now "Y" %} Gestion de Stages. Tous droits réservés.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Custom JS -->
+    <script>
+        // Activer les tooltips Bootstrap
+        document.addEventListener('DOMContentLoaded', function() {
+            const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+            tooltipTriggerList.forEach(function (tooltipTriggerEl) {
+                new bootstrap.Tooltip(tooltipTriggerEl, {
+                    trigger: 'hover focus'
+                });
+            });
+
+            // Animation de fade-in pour les éléments
+            document.querySelectorAll('.fade-in').forEach(function(element) {
+                element.style.opacity = '1';
+            });
+
+            // Gestion des messages d'alerte
+            const alerts = document.querySelectorAll('.alert');
+            if (alerts.length > 0) {
+                alerts.forEach(function(alert) {
+                    const closeButton = alert.querySelector('.btn-close');
+                    if (closeButton) {
+                        closeButton.addEventListener('click', function() {
+                            alert.style.opacity = '0';
+                            setTimeout(function() {
+                                alert.remove();
+                            }, 300);
+                        });
+                    }
+
+                    // Fermeture automatique après 5 secondes
+                    setTimeout(function() {
+                        if (alert.parentNode) {
+                            alert.style.opacity = '0';
+                            setTimeout(function() {
+                                if (alert.parentNode) {
+                                    alert.remove();
+                                }
+                            }, 300);
+                        }
+                    }, 5000);
+                });
+            }
+
+            // Gestion de la navigation responsive
+            const navbarToggler = document.querySelector('.navbar-toggler');
+            if (navbarToggler) {
+                navbarToggler.addEventListener('click', function() {
+                    const navbarCollapse = document.querySelector('.navbar-collapse');
+                    if (navbarCollapse) {
+                        const isExpanded = navbarCollapse.classList.contains('show');
+                        this.setAttribute('aria-expanded', !isExpanded);
+                    }
+                });
+            }
+        });
+
+        // Gestion du focus pour l'accessibilité
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                document.body.classList.add('user-is-tabbing');
+            }
+        });
+
+        document.addEventListener('mousedown', function() {
+            document.body.classList.remove('user-is-tabbing');
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html> 

@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Postuler au stage" %}{% endblock %}
+
+{% block content %}
+<style>
+  .candidature-hero {
+    background: linear-gradient(135deg, #112353 0%, #3d425c 100%);
+    border-radius: 22px;
+    box-shadow: 0 8px 32px 0 rgba(44,62,80,0.10);
+    color: #fff;
+    padding: 1.5rem 2rem 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 2.2rem;
+    min-height: 90px;
+  }
+  .candidature-hero .stage-logo {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: #e8f0fe;
+    color: #192850;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 1.3rem;
+    margin-right: 1rem;
+  }
+  .candidature-hero .hero-text h1 {
+    font-size: 2rem;
+    margin-bottom: 0.2rem;
+    color: #fff;
+  }
+  .candidature-hero .hero-text h5 {
+    font-size: 1.1rem;
+    color: #f0f4ff;
+    margin-bottom: 0;
+  }
+  .candidature-form-card {
+    border-radius: 20px;
+    box-shadow: 0 2px 12px 0 rgba(44,62,80,0.10);
+    background: #fff;
+    margin-bottom: 2rem;
+  }
+  .candidature-form-card .card-body {
+    padding: 2.2rem 2rem;
+  }
+  .btn-primary {
+    background-color: #192850;
+    border-radius: 20px;
+    font-weight: 600;
+    padding: 0.6rem 1.6rem;
+    font-size: 1.1rem;
+  }
+  .btn-outline-secondary {
+    border-radius: 20px;
+    font-size: 1.1rem;
+    padding: 0.6rem 1.6rem;
+  }
+  .alert-info {
+    border-radius: 14px;
+    font-size: 1rem;
+    background: #e8f0fe;
+    color: #192850;
+    border: none;
+  }
+  @media (max-width: 768px) {
+    .candidature-hero {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 1.2rem 1rem;
+      gap: 0.7rem;
+    }
+    .candidature-form-card .card-body {
+      padding: 1.2rem 0.7rem;
+    }
+  }
+</style>
+<div class="container py-4">
+  <div class="candidature-hero mb-4">
+    <div class="stage-logo">
+      <div class="logo-placeholder">{{ stage.entreprise.nom|slice:":2"|upper }}</div>
+    </div>
+    <div class="hero-text">
+      <h1>{% trans "Postuler au stage" %}</h1>
+      <h5>{{ stage.titre }} - {{ stage.entreprise.nom }}</h5>
+    </div>
+  </div>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="candidature-form-card card" data-aos="fade-up" data-aos-delay="100">
+        <div class="card-body">
+          <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-4">
+              <h4 class="mb-3">
+                <i class="fas fa-file-upload me-2"></i>{% trans "Documents requis" %}
+              </h4>
+              {{ form.cv|as_crispy_field }}
+              {{ form.lettre_motivation|as_crispy_field }}
+            </div>
+            <div class="mb-4">
+              <h4 class="mb-3">
+                <i class="fas fa-comment me-2"></i>{% trans "Message (optionnel)" %}
+              </h4>
+              {{ form.commentaire|as_crispy_field }}
+            </div>
+            <div class="alert alert-info mb-4">
+              <h5 class="alert-heading mb-2">
+                <i class="fas fa-info-circle me-2"></i>{% trans "Informations importantes" %}
+              </h5>
+              <ul class="mb-0">
+                <li>{% trans "Format accepté : PDF, DOC, DOCX" %}</li>
+                <li>{% trans "Taille maximale du CV : 5MB" %}</li>
+                <li>{% trans "Taille maximale de la lettre de motivation : 2MB" %}</li>
+              </ul>
+            </div>
+            <div class="d-flex justify-content-between mt-4">
+              <a href="{% url 'stages:stage_detail' stage.pk %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>{% trans "Retour" %}
+              </a>
+              <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane me-2"></i>{% trans "Envoyer ma candidature" %}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} 

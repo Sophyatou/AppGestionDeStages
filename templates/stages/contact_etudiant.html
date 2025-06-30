@@ -1,0 +1,86 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Contacter l'étudiant" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header pb-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6>Contacter {{ etudiant.get_full_name }}</h6>
+                        <a href="javascript:history.back()" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-arrow-left me-2"></i>Retour
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <!-- Informations sur l'étudiant -->
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-body text-xs font-weight-bolder mb-3">Informations sur l'étudiant</h6>
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="text-sm mb-2">
+                                        <span class="font-weight-bold me-2">Nom complet:</span>
+                                        {{ etudiant.get_full_name }}
+                                    </p>
+                                    <p class="text-sm mb-2">
+                                        <span class="font-weight-bold me-2">Email:</span>
+                                        {{ etudiant.user_profile.user.email }}
+                                    </p>
+                                </div>
+                                <div class="col-md-6">
+                                    <p class="text-sm mb-2">
+                                        <span class="font-weight-bold me-2">Téléphone:</span>
+                                        {{ etudiant.telephone|default:"Non renseigné" }}
+                                    </p>
+                                    <p class="text-sm mb-2">
+                                        <span class="font-weight-bold me-2">Filière:</span>
+                                        {{ etudiant.filiere }}
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Formulaire de message -->
+                        <div class="mb-4">
+                            <h6 class="text-uppercase text-body text-xs font-weight-bolder mb-3">Message</h6>
+                            <div class="mb-3">
+                                <label for="sujet" class="form-label">Sujet</label>
+                                <input type="text" class="form-control" id="sujet" name="sujet" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="message" class="form-label">Message</label>
+                                <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
+                            </div>
+                        </div>
+                        
+                        <!-- Boutons d'action -->
+                        <div class="d-flex justify-content-end gap-2">
+                            <button type="button" class="btn btn-outline-secondary" onclick="history.back()">
+                                Annuler
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane me-2"></i>Envoyer
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control:focus {
+    border-color: #3b5cb8;
+    box-shadow: 0 0 0 0.2rem rgba(59, 92, 184, 0.25);
+}
+</style>
+{% endblock %} 

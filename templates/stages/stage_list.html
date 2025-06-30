@@ -1,0 +1,217 @@
+{% extends 'list_base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Trouver un stage" %}{% endblock %}
+
+{% block content %}
+<style>
+  body {
+    background: #f6f8fb;
+  }
+  .btn-back {
+    background: #fff;
+    color: #192850;
+    border: 1.5px solid #192850;
+    border-radius: 18px;
+    font-weight: 600;
+    padding: 0.4rem 1.3rem;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 2px 8px 0 rgba(44,62,80,0.08);
+    transition: background 0.2s, color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 2;
+  }
+  .btn-back:hover {
+    background: #e8f0fe;
+    color: #233a6b;
+    text-decoration: none;
+  }
+  .stage-hero {
+    background: linear-gradient(135deg, #112353 0%, #3d425c 100%);
+    border-radius: 28px;
+    box-shadow: 0 8px 32px 0 rgba(44,62,80,0.10);
+    color: #fff;
+    padding: 2.2rem 2.2rem 2.2rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2.5rem;
+    min-height: 120px;
+    position: relative;
+    overflow: hidden;
+  }
+  .stage-hero .hero-text {
+    z-index: 2;
+  }
+  .stage-hero .hero-illu {
+    width: 90px;
+    height: auto;
+    opacity: 0.18;
+    position: absolute;
+    right: 2rem;
+    bottom: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+  .stage-filters {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 2px 12px 0 rgba(44,62,80,0.10);
+    padding: 2rem 1.5rem 1.5rem 1.5rem;
+    margin-bottom: 2rem;
+    min-width: 260px;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .stage-filters .card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .stage-list-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: left;
+    gap: 2.2rem 2.2rem;
+    margin-bottom: 2.5rem;
+  }
+  .stage-card {
+    border-radius: 22px;
+    transition: box-shadow 0.2s, transform 0.2s;
+    background: #fff;
+    max-width: 350px;
+    min-width: 270px;
+    margin: 0 auto;
+    box-shadow: 0 2px 12px 0 rgba(44,62,80,0.10);
+    border: none;
+    display: flex;
+    flex-direction: column;
+    min-height: 220px;
+  }
+  .stage-card:hover {
+    box-shadow: 0 8px 32px 0 rgba(44,62,80,0.18);
+    transform: translateY(-4px) scale(1.02);
+  }
+  .stage-logo, .logo-placeholder {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: #e8f0fe;
+    color: #192850;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 1.1rem;
+  }
+  .btn-sm.rounded-pill {
+    border-radius: 20px !important;
+    padding: 0.4rem 1.2rem;
+    font-size: 1rem;
+  
+  }
+  .btn-primary {
+    background-color: #192850;
+  }
+  .btn-success {
+    background-color: #1c541e;
+  }
+  @media (max-width: 992px) {
+    .stage-list-row {
+      gap: 1.2rem 1.2rem;
+    }
+    .stage-card {
+      max-width: 95vw;
+      min-width: 220px;
+    }
+    .stage-hero {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 1.5rem 1rem 1.5rem 1rem;
+      min-height: 90px;
+    }
+    .stage-hero .hero-illu {
+      display: none;
+    }
+  }
+</style>
+<div class="container py-4">
+  <a href="{% url 'stages:dashboard' %}" class="btn-back mb-3"><i class="fas fa-arrow-left"></i> </a>
+  <div class="stage-hero mb-4">
+    <div class="hero-text">
+      <h1 class="display-6 mb-1" style="color:#fff;">{% trans "Trouver un stage" %}</h1>
+      <p class="mb-0" style="color:#f0f4ff; font-size:1.08rem;">{% trans "Découvrez toutes les offres de stage disponibles et postulez en quelques clics !" %}</p>
+    </div>
+    <!-- <img src="https://www.svgrepo.com/show/452214/clipboard-checklist.svg" alt="Illustration" class="hero-illu"> -->
+  </div>
+  <div class="row justify-content-center">
+    <div class="col-md-3 mb-4">
+      <div class="stage-filters">
+        <h5 class="card-title mb-0">
+          <i class="fas fa-filter me-2"></i>{% trans "Filtres" %}
+        </h5>
+        <form method="get" id="filterForm">
+          <div class="mb-3 mt-3">
+            <label for="q" class="form-label">{% trans "Recherche" %}</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="fas fa-search"></i></span>
+              <input type="text" class="form-control" id="q" name="q" value="{{ request.GET.q }}" placeholder="{% trans 'Rechercher...' %}">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="type" class="form-label">{% trans "Type de stage" %}</label>
+            <select class="form-select" id="type" name="type">
+              <option value="">{% trans "Tous" %}</option>
+              {% for value, label in type_choices %}
+                <option value="{{ value }}" {% if request.GET.type == value %}selected{% endif %}>{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm rounded-pill w-100 mt-2">Filtrer</button>
+        </form>
+      </div>
+    </div>
+    <div class="col-md-9">
+      {% if page_obj %}
+        <div class="stage-list-row">
+          {% for stage in page_obj %}
+            <div>
+              <div class="stage-card card h-100 shadow-sm">
+                <div class="card-body d-flex flex-column">
+                  <div class="d-flex align-items-center mb-3">
+                    <div class="stage-logo me-3">
+                      <div class="logo-placeholder">{{ stage.entreprise.nom|slice:":2"|upper }}</div>
+                    </div>
+                    <span class="badge bg-primary">{{ stage.get_type_stage_display }}</span>
+                  </div>
+                  <h5 class="card-title mb-1">{{ stage.titre }}</h5>
+                  <h6 class="card-subtitle mb-2 text-muted">{{ stage.entreprise.nom }}</h6>
+                  <p class="card-text text-truncate" style="min-height:48px;">{{ stage.description|truncatechars:80 }}</p>
+                </div>
+                <div class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center">
+                  <span class="text-muted small"><i class="fas fa-clock me-1"></i>{{ stage.get_duree_display }}</span>
+                  <div>
+                    <a href="{% url 'stages:stage_detail' stage.pk %}" class="btn btn-outline-primary btn-sm rounded-pill">Détails</a>
+                    {% if user.is_authenticated %}
+                      <a href="{% url 'stages:candidature_create' stage.pk %}" class="btn btn-success btn-sm rounded-pill ms-1">Postuler</a>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+       
+      {% else %}
+        <div class="alert alert-info" data-aos="fade-up">
+          <i class="fas fa-info-circle me-2"></i>
+          {% trans "Aucun stage ne correspond à vos critères de recherche." %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %} 

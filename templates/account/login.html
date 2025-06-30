@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load account socialaccount %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Connexion" %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-lg border-0">
+            <div class="card-body p-4">
+                <h2 class="card-title text-center mb-4">
+                    <i class="fas fa-sign-in-alt"></i> {% trans "Connexion à votre espace" %}
+                </h2>
+
+                {% if form.errors or form.non_field_errors %}
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        <strong>{% trans "Erreur de connexion" %} :</strong>
+                        {% for field in form %}
+                            {% for error in field.errors %}
+                                <div>{{ error }}</div>
+                            {% endfor %}
+                        {% endfor %}
+                        {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endif %}
+
+                <form class="login needs-validation" method="POST" action="{% url 'account_login' %}" novalidate autocomplete="on">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="id_login" class="form-label">{% trans "Identifiant (email, nom d'utilisateur ou téléphone)" %}</label>
+                        <input type="text" name="login" class="form-control" id="id_login" placeholder="ex: sophya@mail.com ou sophya ou 0600000000" required autofocus>
+                    </div>
+                    <div class="mb-3">
+                        <label for="id_password" class="form-label">{% trans "Mot de passe" %}</label>
+                        <input type="password" name="password" class="form-control" id="id_password" placeholder="********" required>
+                    </div>
+                    {% if redirect_field_value %}
+                        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+                    {% endif %}
+
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" type="submit" id="login-btn">
+                            <span id="login-btn-text"><i class="fas fa-sign-in-alt"></i> {% trans "Se connecter" %}</span>
+                            <span id="login-btn-spinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                        </button>
+                    </div>
+
+                    <div class="text-center mt-3">
+                        <a class="text-decoration-none" href="{% url 'account_reset_password' %}">
+                            {% trans "Mot de passe oublié ?" %}
+                        </a>
+                    </div>
+                </form>
+
+                <hr class="my-4">
+
+                <div class="text-center">
+                    <p class="mb-0">
+                        {% trans "Pas encore de compte ?" %}
+                        <a href="{% url 'stages:signup_choice' %}" class="text-decoration-none">
+                            {% trans "Inscrivez-vous" %}
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Validation des formulaires
+    (function () {
+        'use strict'
+        var forms = document.querySelectorAll('.needs-validation')
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                } else {
+                    // Spinner sur le bouton
+                    document.getElementById('login-btn-text').classList.add('d-none');
+                    document.getElementById('login-btn-spinner').classList.remove('d-none');
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+    // Fermeture auto des alertes après 4s
+    setTimeout(function() {
+        var alert = document.querySelector('.alert-dismissible');
+        if(alert) {
+            var bsAlert = new bootstrap.Alert(alert);
+            bsAlert.close();
+        }
+    }, 4000);
+</script>
+{% endblock %} 

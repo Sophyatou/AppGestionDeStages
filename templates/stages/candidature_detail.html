@@ -1,0 +1,135 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Détails de la candidature" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card mb-4">
+                <div class="card-header pb-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h6>Détails de la candidature</h6>
+                        <a href="{% url 'stages:candidatures_list' %}" class="btn btn-outline-primary btn-sm">
+                            <i class="fas fa-arrow-left me-2"></i>Retour
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <!-- Informations sur l'étudiant -->
+                        <div class="col-md-6">
+                            <h6 class="text-uppercase text-body text-xs font-weight-bolder mb-3">Informations sur l'étudiant</h6>
+                            <div class="mb-4">
+                                <p class="text-sm mb-2">
+                                    <span class="font-weight-bold me-2">Nom complet:</span>
+                                    {{ candidature.etudiant.get_full_name }}
+                                </p>
+                                <p class="text-sm mb-2">
+                                    <span class="font-weight-bold me-2">Email:</span>
+                                    {{ candidature.etudiant.user_profile.user.email }}
+                                </p>
+                                <p class="text-sm mb-2">
+                                    <span class="font-weight-bold me-2">Téléphone:</span>
+                                    {{ candidature.etudiant.telephone|default:"Non renseigné" }}
+                                </p>
+                                <p class="text-sm mb-2">
+                                    <span class="font-weight-bold me-2">Filière:</span>
+                                    {{ candidature.etudiant.filiere }}
+                                </p>
+                            </div>
+                            
+                            <!-- Documents -->
+                            <h6 class="text-uppercase text-body text-xs font-weight-bolder mb-3">Documents</h6>
+                            <div class="mb-4">
+                                {% if candidature.cv %}
+                                <p class="text-sm mb-2">
+                                    <i class="fas fa-file-pdf me-2"></i>
+                                    <a href="{{ candidature.cv.url }}" target="_blank" class="text-primary">
+                                        CV
+                                    </a>
+                                </p>
+                                {% endif %}
+                                {% if candidature.lettre_motivation %}
+                                <p class="text-sm mb-2">
+                                    <i class="fas fa-file-alt me-2"></i>
+                                    <a href="{{ candidature.lettre_motivation.url }}" target="_blank" class="text-primary">
+                                        Lettre de motivation
+                                    </a>
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Informations sur la candidature -->
+                        <div class="col-md-6">
+                            <h6 class="text-uppercase text-body text-xs font-weight-bolder mb-3">Informations sur la candidature</h6>
+                            <div class="mb-4">
+                                <p class="text-sm mb-2">
+                                    <span class="font-weight-bold me-2">Offre:</span>
+                                    {{ candidature.stage.titre }}
+                                </p>
+                                <p class="text-sm mb-2">
+                                    <span class="font-weight-bold me-2">Date de candidature:</span>
+                                    {{ candidature.date_candidature|date:"d/m/Y" }}
+                                </p>
+                                <p class="text-sm mb-2">
+                                    <span class="font-weight-bold me-2">Statut:</span>
+                                    <span class="badge badge-sm bg-gradient-{{ candidature.statut }}">
+                                        {{ candidature.get_statut_display }}
+                                    </span>
+                                </p>
+                                {% if candidature.message %}
+                                <p class="text-sm mb-2">
+                                    <span class="font-weight-bold me-2">Message:</span>
+                                    {{ candidature.message }}
+                                </p>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Actions -->
+                            {% if candidature.statut == 'en_attente' %}
+                            <div class="mb-4">
+                                <h6 class="text-uppercase text-body text-xs font-weight-bolder mb-3">Actions</h6>
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'stages:candidature_update_status' candidature.pk 'acceptee' %}" 
+                                       class="btn btn-success btn-sm">
+                                        <i class="fas fa-check me-2"></i>Accepter
+                                    </a>
+                                    <a href="{% url 'stages:candidature_update_status' candidature.pk 'refusee' %}" 
+                                       class="btn btn-danger btn-sm">
+                                        <i class="fas fa-times me-2"></i>Refuser
+                                    </a>
+                                    <a href="{% url 'stages:contact_etudiant' candidature.etudiant.pk %}" 
+                                       class="btn btn-info btn-sm">
+                                        <i class="fas fa-envelope me-2"></i>Contacter
+                                    </a>
+                                </div>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.bg-gradient-en_attente {
+    background: linear-gradient(135deg, #f9a825 0%, #fbc02d 100%);
+}
+.bg-gradient-acceptee {
+    background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+}
+.bg-gradient-refusee {
+    background: linear-gradient(135deg, #ef5350 0%, #f44336 100%);
+}
+.badge-sm {
+    padding: 0.45em 0.9em;
+    font-size: 0.75em;
+}
+</style>
+{% endblock %} 

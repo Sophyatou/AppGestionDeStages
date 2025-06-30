@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Choisir votre type de compte" %}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="text-center mb-5">{% trans "Choisissez votre type de compte" %}</h2>
+    
+   <!-- Section Inscription avec cartes cliquables, fond bleu, icône au-dessus, alignement à gauche -->
+<div class="row mt-5 py-5" id="inscription">
+    <div class="col-12">
+        <div class="row justify-content-center g-4">
+            <!-- Carte Étudiant -->
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <a href="{% url 'stages:etudiant_signup' %}" class="text-decoration-none">
+                    <div class="card h-100 signup-card p-4 d-flex flex-column align-items-start justify-content-center" style="background:#353c4f; border:none; border-radius:1.2rem; min-height:240px; min-width:260px; cursor:pointer; transition:box-shadow 0.2s;">
+                        <div class="icon-wrapper mb-3">
+                            <i class="bi bi-person-workspace text-white" style="font-size:1.8rem;"></i>
+                        </div>
+                        <h5 class="mb-1 fw-bold text-white">{% trans "Étudiant" %}</h5>
+                        <div class="text-white small">{% trans "Espace Étudiant" %}</div>
+                    </div>
+                </a>
+            </div>
+            <!-- Carte Responsable -->
+            <!-- <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <a href="{% url 'stages:responsable_signup' %}" class="text-decoration-none">
+                    <div class="card h-100 signup-card p-4 d-flex flex-column align-items-start justify-content-center" style="background:#353c4f; border:none; border-radius:1.2rem; min-height:240px; min-width:260px; cursor:pointer; transition:box-shadow 0.2s;">
+                        <div class="icon-wrapper mb-3">
+                            <i class="bi bi-person-gear text-white" style="font-size:1.8rem;"></i>
+                        </div>
+                        <h5 class="mb-1 fw-bold text-white">{% trans "Responsable" %}</h5>
+                        <div class="text-white small">{% trans "Espace Enseignant" %}</div>
+                    </div>
+                </a>
+            </div> -->
+            <!-- Carte Entreprise -->
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                <a href="{% url 'stages:entreprise_signup' %}" class="text-decoration-none">
+                    <div class="card h-100 signup-card p-4 d-flex flex-column align-items-start justify-content-center" style="background:#353c4f; border:none; border-radius:1.2rem; min-height:240px; min-width:260px; cursor:pointer; transition:box-shadow 0.2s;">
+                        <div class="icon-wrapper mb-3">
+                            <i class="bi bi-building-add text-white" style="font-size:1.8rem;"></i>
+                        </div>
+                        <h5 class="mb-1 fw-bold text-white">{% trans "Entreprise" %}</h5>
+                        <div class="text-white small">{% trans "Espace Entreprise" %}</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des cartes au survol
+    const cards = document.querySelectorAll('.signup-card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px)';
+            this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
+        });
+    });
+});
+</script>
+{% endblock %}
+{% endblock %} 

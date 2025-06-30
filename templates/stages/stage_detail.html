@@ -1,0 +1,62 @@
+{% extends 'list_base.html' %}
+{% load i18n %}
+
+{% block title %}{{ stage.titre }}{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <div class="card shadow-lg" style="border-radius:28px;max-width:600px;margin:auto;">
+        <div class="card-body p-5">
+          <div class="d-flex align-items-center mb-4">
+            <div class="stage-logo me-3">
+              <div class="logo-placeholder">{{ stage.entreprise.nom|slice:":2"|upper }}</div>
+            </div>
+            <div>
+              <h2 class="mb-1">{{ stage.titre }}</h2>
+              <h5 class="text-muted mb-2">{{ stage.entreprise.nom }}</h5>
+              <div class="d-flex gap-2 mb-2">
+                <span class="badge bg-primary">{{ stage.get_type_stage_display }}</span>
+                <span class="badge bg-info text-dark">{{ stage.get_duree_display }}</span>
+                {% if stage.remuneration %}<span class="badge bg-success">{{ stage.remuneration }}€</span>{% endif %}
+              </div>
+              <div class="text-muted small"><i class="fas fa-calendar me-1"></i>{{ stage.date_debut|date:"d/m/Y" }} - {{ stage.date_fin|date:"d/m/Y" }}</div>
+            </div>
+          </div>
+          <p class="mb-4">{{ stage.description|linebreaks }}</p>
+          <div class="mb-4">
+            <h6 class="mb-2"><i class="fas fa-tasks me-2"></i>{% trans "Compétences requises" %}</h6>
+            <p class="mb-0">{{ stage.competences_requises|linebreaks }}</p>
+          </div>
+          <div class="mb-4">
+            <h6 class="mb-2"><i class="fas fa-building me-2"></i>{% trans "Entreprise" %}</h6>
+            <p class="mb-0">{{ stage.entreprise.description|linebreaks }}</p>
+          </div>
+          <div class="d-flex gap-2 justify-content-end">
+            <a href="{% url 'stages:stage_list' %}" class="btn btn-outline-secondary rounded-pill">&larr; {% trans "Retour" %}</a>
+            {% if user.is_authenticated and can_apply %}
+              <a href="{% url 'stages:candidature_create' stage.pk %}" class="btn btn-primary rounded-pill">{% trans "Postuler" %}</a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>
+.stage-logo, .logo-placeholder {
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  background: #e8f0fe;
+  color: #3b5cb8;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 1.3rem;
+}
+.btn.rounded-pill {
+  border-radius: 20px !important;
+  padding: 0.5rem 1.5rem;
+  font-size: 1.1rem;
+}
+</style>
+{% endblock %} 

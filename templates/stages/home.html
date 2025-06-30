@@ -1,0 +1,402 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Liste des Stages" %}{% endblock %}
+
+{% block content %}
+<!-- Hero Carrousel professionnel, illustration à gauche, texte à droite, sans fond opaque ni ombre, avec points d'indicateur -->
+<div id="heroCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+  <div class="carousel-indicators">
+    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
+    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+    <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+  </div>
+  <div class="carousel-inner rounded-4" style="overflow:hidden; min-height:340px; max-height:380px;">
+    <div class="carousel-item active">
+      <div class="row g-0 align-items-center justify-content-center flex-md-row flex-column-reverse" style="min-height:380px; background:#353c4f;">
+        <div class="col-md-5 d-flex justify-content-center align-items-center p-3">
+          <img src="{% static 'images/Graduation-cuate.svg' %}" alt="Diplômés" style="height: 240px; max-width: 90%; object-fit: contain;">
+        </div>
+        <div class="col-md-7 d-flex align-items-center justify-content-center p-3">
+          <div style="width:100%; max-width:600px;">
+            <h1 class="display-5 fw-bold mb-2 text-white" style="text-shadow:0 2px 8px #0006; letter-spacing: -1px;">Trouvez un stage </h1>
+            <p class="lead mb-4 text-white" style="text-shadow:0 1px 4px #0004;">Explorez des opportunités uniques et lancez votre carrière professionnelle</p>
+            <div class="d-flex gap-3 justify-content-start flex-wrap">
+              <a href="#stages" class="btn btn-lg px-4" style="background:#6ea7f8; color:#fff; border-radius: 0.7rem; font-weight: 200; border: none;">Explorer les stages</a>
+              <a href="#inscription" class="btn btn-lg px-4" style="background:transparent; color:#fff; border:2px solid #6ea7f8; border-radius: 0.7rem; font-weight: 200;">S'inscrire maintenant</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Slide 2 -->
+    <div class="carousel-item">
+      <div class="row g-0 align-items-center justify-content-center flex-md-row-reverse flex-column-reverse" style="min-height:380px; background:#3263a8;">
+        <div class="col-md-5 d-flex justify-content-center align-items-center p-3">
+          <img src="{% static 'images/Team work-bro.svg' %}" alt="Équipe" style="height: 280px; max-width: 90%; object-fit: contain;">
+        </div>
+        <div class="col-md-7 d-flex align-items-center justify-content-center p-3">
+          <div style="width:100%; max-width:600px;">
+            <h1 class="display-5 fw-bold mb-2 text-white" style="text-shadow:0 2px 8px #0006; letter-spacing: -1px;">Développez vos compétences</h1>
+            <p class="lead mb-4 text-white" style="text-shadow:0 1px 4px #0004;">Acquérez une expérience professionnelle enrichissante</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Slide 3 -->
+    <div class="carousel-item">
+      <div class="row g-0 align-items-center justify-content-center flex-md-row flex-column-reverse" style="min-height:380px; background:#eaeff5;">
+        <div class="col-md-5 d-flex justify-content-center align-items-center p-3">
+          <img src="{% static 'images/At the office-pana.svg' %}" alt="Communauté" style="height: 240px; max-width: 90%; object-fit: contain;">
+        </div>
+        <div class="col-md-7 d-flex align-items-center justify-content-center p-3">
+          <div style="width:100%; max-width:600px;">
+            <h1 class="display-5 fw-bold mb-2 text-dark" style="text-shadow:0 2px 8px #fff8; letter-spacing: -1px;">Rejoignez notre communauté</h1>
+            <p class="lead mb-4 text-dark" style="text-shadow:0 1px 4px #fff6;">Connectez-vous avec des entreprises innovantes</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Filtres et Liste des stages -->
+<div class="row" id="stages">
+    <!-- Filtres -->
+    <div class="col-md-3">
+        <div class="card sticky-top" style="top: 2rem;">
+            <div class="card-header bg-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-filter me-2"></i>{% trans "Filtres" %}
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="get" id="filterForm">
+                    <div class="mb-3">
+                        <label for="q" class="form-label">{% trans "Recherche" %}</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="fas fa-search"></i></span>
+                            <input type="text" class="form-control" id="q" name="q" value="{{ request.GET.q }}" placeholder="{% trans 'Rechercher...' %}">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="type" class="form-label">{% trans "Type de stage" %}</label>
+                        <select class="form-select" id="type" name="type">
+                            <option value="">{% trans "Tous" %}</option>
+                            {% for value, label in type_choices %}
+                                <option value="{{ value }}" {% if request.GET.type == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="duree" class="form-label">{% trans "Durée" %}</label>
+                        <select class="form-select" id="duree" name="duree">
+                            <option value="">{% trans "Toutes" %}</option>
+                            {% for value, label in duree_choices %}
+                                <option value="{{ value }}" {% if request.GET.duree == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">{% trans "Rémunération" %}</label>
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="remunere" name="remunere" {% if request.GET.remunere %}checked{% endif %}>
+                            <label class="form-check-label" for="remunere">
+                                {% trans "Stages rémunérés uniquement" %}
+                            </label>
+                        </div>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-filter me-2"></i>{% trans "Filtrer" %}
+                        </button>
+                        <button type="reset" class="btn btn-outline-secondary" id="resetFilters">
+                            <i class="fas fa-undo me-2"></i>{% trans "Réinitialiser" %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Liste des stages -->
+    <div class="col-md-9">
+        {% if page_obj %}
+            <div class="row">
+                {% for stage in page_obj %}
+                    <div class="col-md-6 col-lg-6 mb-4">
+                        <div class="stage-card card h-100 shadow-sm" style="max-width:420px;margin:auto;">
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex align-items-center mb-3">
+                                    <div class="stage-logo me-3">
+                                        <div class="logo-placeholder">{{ stage.entreprise.nom|slice:":2"|upper }}</div>
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-primary">{{ stage.get_type_stage_display }}</span>
+                                    </div>
+                                </div>
+                                <h5 class="card-title mb-1">{{ stage.titre }}</h5>
+                                <h6 class="card-subtitle mb-2 text-muted">{{ stage.entreprise.nom }}</h6>
+                                <p class="card-text text-truncate" style="min-height:48px;">{{ stage.description|truncatechars:80 }}</p>
+                            </div>
+                            <div class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center">
+                                <span class="text-muted small"><i class="fas fa-clock me-1"></i>{{ stage.get_duree_display }}</span>
+                                <div>
+                                    <a href="{% url 'stages:stage_detail' stage.pk %}" class="btn btn-outline-primary btn-sm rounded-pill">Détails</a>
+                                    {% if user.is_authenticated %}
+                                        <a href="{% url 'stages:candidature_create' stage.pk %}" class="btn btn-success btn-sm rounded-pill ms-1">Postuler</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <!-- Pagination -->
+            {% if page_obj.has_other_pages %}
+                <nav aria-label="Page navigation" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.duree %}&duree={{ request.GET.duree }}{% endif %}">
+                                    <i class="fas fa-chevron-left me-1"></i>{% trans "Précédent" %}
+                                </a>
+                            </li>
+                        {% endif %}
+
+                        {% for num in page_obj.paginator.page_range %}
+                            {% if page_obj.number == num %}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ num }}</span>
+                                </li>
+                            {% else %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ num }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.duree %}&duree={{ request.GET.duree }}{% endif %}">
+                                        {{ num }}
+                                    </a>
+                                </li>
+                            {% endif %}
+                        {% endfor %}
+
+                        {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}{% if request.GET.type %}&type={{ request.GET.type }}{% endif %}{% if request.GET.duree %}&duree={{ request.GET.duree }}{% endif %}">
+                                    {% trans "Suivant" %}<i class="fas fa-chevron-right ms-1"></i>
+                                </a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% endif %}
+        {% else %}
+            <div class="alert alert-info" data-aos="fade-up">
+                <i class="fas fa-info-circle me-2"></i>
+                {% trans "Aucun stage ne correspond à vos critères de recherche." %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Section Inscription avec cartes cliquables, fond bleu, icône au-dessus, alignement à gauche -->
+<div class="row mt-5 py-5" id="inscription">
+    <div class="col-12">
+        <div class="row justify-content-center g-4">
+            <!-- Carte Étudiant -->
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <a href="{% url 'stages:etudiant_signup' %}" class="text-decoration-none">
+                    <div class="card h-100 signup-card p-4 d-flex flex-column align-items-start justify-content-center" style="background:#353c4f; border:none; border-radius:1.2rem; min-height:240px; min-width:260px; cursor:pointer; transition:box-shadow 0.2s;">
+                        <div class="icon-wrapper mb-3">
+                            <i class="bi bi-person-workspace text-white" style="font-size:1.8rem;"></i>
+                        </div>
+                        <h5 class="mb-1 fw-bold text-white">{% trans "Étudiant" %}</h5>
+                        <div class="text-white small">{% trans "Espace Étudiant" %}</div>
+                    </div>
+                </a>
+            </div>
+            <!-- Carte Responsable -->
+            <!-- <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <a href="{% url 'stages:responsable_signup' %}" class="text-decoration-none">
+                    <div class="card h-100 signup-card p-4 d-flex flex-column align-items-start justify-content-center" style="background:#353c4f; border:none; border-radius:1.2rem; min-height:240px; min-width:260px; cursor:pointer; transition:box-shadow 0.2s;">
+                        <div class="icon-wrapper mb-3">
+                            <i class="bi bi-person-gear text-white" style="font-size:1.8rem;"></i>
+                        </div>
+                        <h5 class="mb-1 fw-bold text-white">{% trans "Responsable" %}</h5>
+                        <div class="text-white small">{% trans "Espace Enseignant" %}</div>
+                    </div>
+                </a>
+            </div> -->
+            <!-- Carte Entreprise -->
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                <a href="{% url 'stages:entreprise_signup' %}" class="text-decoration-none">
+                    <div class="card h-100 signup-card p-4 d-flex flex-column align-items-start justify-content-center" style="background:#353c4f; border:none; border-radius:1.2rem; min-height:240px; min-width:260px; cursor:pointer; transition:box-shadow 0.2s;">
+                        <div class="icon-wrapper mb-3">
+                            <i class="bi bi-building-add text-white" style="font-size:1.8rem;"></i>
+                        </div>
+                        <h5 class="mb-1 fw-bold text-white">{% trans "Entreprise" %}</h5>
+                        <div class="text-white small">{% trans "Espace Entreprise" %}</div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Section Statistiques -->
+<section class="stats-mini-cards my-5">
+  <div class="container">
+    <div class="d-flex flex-wrap justify-content-center gap-3">
+      <div class="mini-card text-center">
+        <div class="mini-icon mb-1">
+          <i class="fas fa-briefcase"></i>
+        </div>
+        <div class="mini-value">{{ nb_stages }}</div>
+        <div class="mini-label">Stages</div>
+      </div>
+      <div class="mini-card text-center">
+        <div class="mini-icon mb-1">
+          <i class="fas fa-building"></i>
+        </div>
+        <div class="mini-value">{{ nb_entreprises }}</div>
+        <div class="mini-label">Entreprises</div>
+      </div>
+      <div class="mini-card text-center">
+        <div class="mini-icon mb-1">
+          <i class="fas fa-user-graduate"></i>
+        </div>
+        <div class="mini-value">{{ nb_etudiants }}</div>
+        <div class="mini-label">Étudiants</div>
+      </div>
+      <div class="mini-card text-center">
+        <div class="mini-icon mb-1">
+          <i class="fas fa-check-circle"></i>
+        </div>
+        <div class="mini-value">{{ nb_stages_valides }}</div>
+        <div class="mini-label">Stages validés</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+.stats-mini-cards {
+  background: #fff;
+}
+.mini-card {
+  min-width: 110px;
+  min-height: 90px;
+  padding: 1.1rem 1.2rem 0.8rem 1.2rem;
+  border-radius: 12px;
+  background: #f8f9fa;
+  border: 1px solid #e3e6ea;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.mini-icon {
+  color: #3498db;
+  font-size: 1.2rem;
+  margin-bottom: 0.2rem;
+}
+.mini-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2c3e50;
+  margin-bottom: 0.1rem;
+}
+.mini-label {
+  font-size: 0.95rem;
+  color: #6c757d;
+}
+@media (max-width: 768px) {
+  .d-flex.flex-wrap.justify-content-center {
+    flex-direction: row;
+    gap: 1rem 0.5rem;
+  }
+  .mini-card {
+    min-width: 45vw;
+    margin-bottom: 0.7rem;
+  }
+}
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Animation CSS pour le hero -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des cartes au survol
+    const cards = document.querySelectorAll('.signup-card');
+    cards.forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-10px)';
+            this.style.boxShadow = '0 4px 15px rgba(0,0,0,0.1)';
+            this.querySelector('.icon-wrapper').style.transform = 'scale(1.1)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0)';
+            this.style.boxShadow = '0 2px 5px rgba(0,0,0,0.05)';
+            this.querySelector('.icon-wrapper').style.transform = 'scale(1)';
+        });
+    });
+
+    // Animation des boutons
+    const buttons = document.querySelectorAll('.btn-hover-effect');
+    buttons.forEach(button => {
+        button.addEventListener('mouseenter', function() {
+            this.style.transform = 'scale(1.05)';
+        });
+        
+        button.addEventListener('mouseleave', function() {
+            this.style.transform = 'scale(1)';
+        });
+    });
+
+    // Animation du carrousel
+    const carousel = document.querySelector('#heroCarousel');
+    if (carousel) {
+        new bootstrap.Carousel(carousel, {
+            interval: 5000,
+            wrap: true
+        });
+    }
+
+    // Animation des compteurs
+    const counters = document.querySelectorAll('.counter');
+    const speed = 200;
+
+    const animateCounter = (counter) => {
+        const target = +counter.innerText.replace(/[^\d]/g, '');
+        const count = 0;
+        const inc = target / speed;
+        
+        if(count < target) {
+            counter.innerText = Math.ceil(count + inc) + '+';
+            setTimeout(() => animateCounter(counter), 1);
+        } else {
+            counter.innerText = target + '+';
+        }
+    }
+
+    // Observer pour déclencher l'animation des compteurs
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounter(entry.target);
+                observer.unobserve(entry.target);
+            }
+        });
+    });
+
+    counters.forEach(counter => observer.observe(counter));
+});
+</script>
+{% endblock %} 

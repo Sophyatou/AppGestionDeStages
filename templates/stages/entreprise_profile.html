@@ -1,0 +1,72 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}{% trans "Profil de l'entreprise" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header pb-0">
+                    <h6>{% trans "Modifier le profil de l'entreprise" %}</h6>
+                </div>
+                <div class="card-body">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-8">
+                                <!-- Informations générales de l'entreprise -->
+                                <h6 class="text-uppercase text-body text-xs font-weight-bolder mb-3">
+                                    {% trans "Informations sur l'entreprise" %}
+                                </h6>
+                                {{ entreprise_form|crispy }}
+                                
+                                <!-- Informations sur le contact -->
+                                <h6 class="text-uppercase text-body text-xs font-weight-bolder mt-4 mb-3">
+                                    {% trans "Contact principal" %}
+                                </h6>
+                                {{ user_form|crispy }}
+                                
+                                <!-- Informations de profil (téléphone) -->
+                                <h6 class="text-uppercase text-body text-xs font-weight-bolder mt-4 mb-3">
+                                    {% trans "Coordonnées" %}
+                                </h6>
+                                {{ profile_form|crispy }}
+                            </div>
+                            
+                            <div class="col-md-4">
+                                <!-- Logo de l'entreprise -->
+                                <h6 class="text-uppercase text-body text-xs font-weight-bolder mb-3">
+                                    {% trans "Logo" %}
+                                </h6>
+                                <div class="text-center">
+                                    {% if entreprise_form.instance.logo %}
+                                        <img src="{{ entreprise_form.instance.logo.url }}" alt="Logo" class="img-fluid rounded-circle shadow-sm mb-3" style="width: 150px; height: 150px; object-fit: cover;">
+                                    {% else %}
+                                        <div class="avatar avatar-xxl bg-gradient-primary rounded-circle mb-3">
+                                            <i class="fas fa-building text-white" style="font-size: 4rem;"></i>
+                                        </div>
+                                    {% endif %}
+                                    <div class="form-group">
+                                        {{ entreprise_form.logo }}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-end mt-4">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-save me-2"></i>{% trans "Enregistrer les modifications" %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

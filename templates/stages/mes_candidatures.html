@@ -1,0 +1,184 @@
+{% extends 'dashboard_base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Mes Candidatures" %}{% endblock %}
+
+{% block content %}
+<style>
+  body, .dashboard-content {
+    background: #f6f8fb !important;
+  }
+  .hero-banner-candidatures {
+    background: linear-gradient(135deg, #233a6b 0%, #3b5cb8 100%);
+    border-radius: 28px;
+    box-shadow: 0 8px 32px 0 rgba(44,62,80,0.18);
+    color: #fff;
+    padding: 2.5rem 2.5rem 2.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 3rem;
+    position: relative;
+    overflow: hidden;
+    min-height: 180px;
+  }
+  .hero-banner-candidatures .hero-text {
+    z-index: 2;
+  }
+ 
+  .hero-banner-candidatures .btn-primary {
+    background: #fff;
+    color: #3b5cb8;
+    font-weight: 600;
+    border: none;
+    box-shadow: 0 2px 8px 0 rgba(44,62,80,0.10);
+    transition: background 0.2s, color 0.2s;
+  }
+  .hero-banner-candidatures .btn-primary:hover {
+    background: #e8f0fe;
+    color: #233a6b;
+  }
+  .candidatures-list {
+    max-width: 950px;
+    margin: 0 auto;
+  }
+  .stage-card {
+    border-radius: 22px;
+    transition: box-shadow 0.2s, transform 0.2s;
+    background: #fff;
+    max-width: 420px;
+    margin: auto;
+    box-shadow: 0 2px 12px 0 rgba(44,62,80,0.10);
+    border: none;
+    display: flex;
+    flex-direction: column;
+    min-height: 280px;
+  }
+  .stage-card:hover {
+    box-shadow: 0 8px 32px 0 rgba(44,62,80,0.18);
+    transform: translateY(-4px) scale(1.02);
+  }
+  .stage-logo, .logo-placeholder {
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: #e8f0fe;
+    color: #192850;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 1.2rem;
+    box-shadow: 0 2px 8px 0 rgba(44,62,80,0.08);
+  }
+  .badge {
+    font-size: 0.95rem;
+    padding: 0.45em 1.1em;
+    border-radius: 12px;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    margin-left: 0.5rem;
+  }
+  .card-footer {
+    border-top: none;
+    background: transparent;
+    padding-top: 0;
+    padding-bottom: 1.1rem;
+  }
+  .btn-sm.rounded-pill {
+    border-radius: 20px !important;
+    padding: 0.4rem 1.2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    
+  }
+  .empty-candidature-illu {
+    width: 110px;
+    margin-bottom: 1.5rem;
+    opacity: 0.7;
+  }
+  @media (max-width: 768px) {
+    .hero-banner-candidatures {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 2rem 1rem 2rem 1rem;
+      min-height: 140px;
+    }
+    .hero-banner-candidatures .hero-illu {
+      display: none;
+    }
+    .candidatures-list {
+      padding: 0 0.5rem;
+    }
+  }
+  .btn-back {
+    background: #fff;
+    color: #192850;
+    border: 1.5px solid #192850;
+    border-radius: 18px;
+    font-weight: 600;
+    padding: 0.4rem 1.3rem;
+    margin-bottom: 1.2rem;
+    box-shadow: 0 2px 8px 0 rgba(44,62,80,0.08);
+    transition: background 0.2s, color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .btn-back:hover {
+    background: #e8f0fe;
+    color: #233a6b;
+    text-decoration: none;
+  }
+</style>
+<div class="container py-4">
+  <a href="{% url 'stages:dashboard' %}" class="btn-back mb-3"><i class="fas fa-arrow-left"></i> </a>
+  <div class="hero-banner-candidatures mb-5">
+    <div class="hero-text">
+      <h1 class="display-5 mb-2" style="color:#fff;">{% trans "Mes Candidatures" %}</h1>
+      <p class="mb-3" style="color:#f0f4ff; font-size:1.1rem;">{% trans "Suivez l'état de vos candidatures et restez informé de leur progression." %}</p>
+      <a href="{% url 'stages:stage_list' %}" class="btn btn-primary btn-lg rounded-pill mt-2">
+        <i class="fas fa-search me-2"></i>{% trans "Voir les stages" %}
+      </a>
+    </div>
+  </div>
+  {% if candidatures %}
+    <div class="row candidatures-list justify-content-start ps-md-4">
+      {% for candidature in candidatures %}
+        <div class="col-md-6 col-lg-6 mb-4 d-flex">
+          <div class="stage-card card h-100 w-100">
+            <div class="card-body d-flex flex-column">
+              <div class="d-flex align-items-center mb-3">
+                <div class="stage-logo me-3">
+                  <div class="logo-placeholder">{{ candidature.stage.entreprise.nom|slice:":2"|upper }}</div>
+                </div>
+                <span class="badge {% if candidature.statut == 'en_attente' %}bg-warning text-dark{% elif candidature.statut == 'acceptee' %}bg-success{% elif candidature.statut == 'refusee' %}bg-danger{% else %}bg-secondary{% endif %}">
+                  {{ candidature.get_statut_display }}
+                </span>
+              </div>
+              <h5 class="card-title mb-1">{{ candidature.stage.titre }}</h5>
+              <h6 class="card-subtitle mb-2 text-muted">{{ candidature.stage.entreprise.nom }}</h6>
+              <p class="card-text text-truncate" style="min-height:48px;">{{ candidature.stage.description|truncatechars:80 }}</p>
+            </div>
+            <div class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center">
+              <span class="text-muted small"><i class="fas fa-calendar me-1"></i>{% trans "Postulé le" %} {{ candidature.date_candidature|date:"d/m/Y" }}</span>
+              <a href="{% url 'stages:stage_detail' candidature.stage.pk %}" class="btn btn-outline-primary btn-sm rounded-pill">Détails</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="row justify-content-center">
+      <div class="col-md-8">
+        <div class="card text-center" style="border-radius:22px;max-width:420px;margin:auto;box-shadow:0 2px 12px 0 rgba(44,62,80,0.10);">
+          <div class="card-body p-5">
+            <img src="https://www.svgrepo.com/show/452214/clipboard-checklist.svg" alt="Aucune candidature" class="empty-candidature-illu">
+            <h3 class="mb-3">{% trans "Aucune candidature" %}</h3>
+            <p class="text-muted mb-4">{% trans "Vous n'avez pas encore postulé à des stages. Commencez votre recherche dès maintenant !" %}</p>
+            <a href="{% url 'stages:stage_list' %}" class="btn btn-primary btn-lg rounded-pill">
+              <i class="fas fa-search me-2"></i>{% trans "Voir les stages disponibles" %}
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %} 

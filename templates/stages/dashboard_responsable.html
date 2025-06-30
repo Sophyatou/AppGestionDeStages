@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block sidebar %}
+<aside class="col-md-3 col-lg-2 d-none d-md-block bg-white sidebar shadow-sm p-0" style="min-height:100vh;">
+    <div class="d-flex flex-column h-100">
+        <div class="text-center py-4 border-bottom">
+            {% if user.profile.photo %}
+                <img src="{{ user.profile.photo.url }}" class="rounded-circle shadow" style="width:60px; height:60px; object-fit:cover; border:2px solid #6ea7f8;" alt="Photo de profil">
+            {% else %}
+                <img src="https://ui-avatars.com/api/?name={{ user.first_name }}+{{ user.last_name }}&size=60&background=6ea7f8&color=fff" class="rounded-circle shadow" style="width:60px; height:60px; object-fit:cover; border:2px solid #6ea7f8;" alt="Avatar">
+            {% endif %}
+            <div class="fw-bold mt-2">{{ user.get_full_name }}</div>
+            <span class="badge bg-primary">Responsable</span>
+        </div>
+        <nav class="nav flex-column py-3 gap-1">
+            <a class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active fw-bold text-primary{% endif %}" href="{% url 'stages:dashboard' %}"><i class="fas fa-home me-2"></i>Tableau de bord</a>
+            <a class="nav-link {% if request.resolver_match.url_name == 'profil' %}active fw-bold text-primary{% endif %}" href="{% url 'stages:profil' %}"><i class="fas fa-user me-2"></i>Mon profil</a>
+            <a class="nav-link" href="{% url 'account_logout' %}"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</a>
+        </nav>
+        <div class="mt-auto text-center small text-muted py-3 border-top">Career Step &copy; 2025</div>
+    </div>
+</aside>
+{% endblock %}
+
+{% block title %}{% trans "Tableau de bord - Responsable" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-5">
+    <div class="row">
+        <div class="col-md-9 col-lg-10 ms-auto">
+            <div class="row g-4 mb-4">
+                <div class="col-12 col-md-4">
+                    <div class="card text-center shadow-sm h-100 border-0">
+                        <div class="card-body">
+                            <i class="fas fa-briefcase fa-2x text-primary mb-2"></i>
+                            <h5 class="card-title mb-1 display-6">{{ stages.count }}</h5>
+                            <p class="text-muted mb-0">Stages actifs</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="card text-center shadow-sm h-100 border-0">
+                        <div class="card-body">
+                            <i class="fas fa-user-graduate fa-2x text-success mb-2"></i>
+                            <h5 class="card-title mb-1 display-6">{{ etudiants_sans_stage.count }}</h5>
+                            <p class="text-muted mb-0">Étudiants sans stage</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-md-4">
+                    <div class="card text-center shadow-sm h-100 border-0">
+                        <div class="card-body">
+                            <i class="fas fa-building fa-2x text-info mb-2"></i>
+                            <h5 class="card-title mb-1 display-6">{{ nb_entreprises }}</h5>
+                            <p class="text-muted mb-0">Entreprises partenaires</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Le reste du contenu dashboard responsable -->
+            <div class="row">
+                <div class="col-12">
+                    <!-- Étudiants sans stage et stages actifs -->
+                    {{ block.super }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load crispy_forms_tags %}
+
+{% block title %}Mon Profil - {{ block.super }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card shadow-lg" style="border-radius:22px;">
+                    <div class="card-body p-4">
+                        <div class="text-center mb-4">
+                            {% if user_profile.photo %}
+                                <img src="{{ user_profile.photo.url }}" alt="Photo de profil" class="rounded-circle" style="width:90px;height:90px;object-fit:cover;">
+                            {% else %}
+                                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:90px;height:90px;font-size:2rem;">
+                                    {{ user.first_name|slice:':1' }}{{ user.last_name|slice:':1' }}
+                                </div>
+                            {% endif %}
+                            <label class="btn btn-outline-secondary btn-sm ms-2" style="border-radius:20px;">
+                                <i class="fas fa-camera"></i> Changer
+                                <input type="file" name="photo" hidden>
+                            </label>
+                        </div>
+                        <div class="row g-3">
+                            <div class="col-md-6">{{ user_form.first_name|as_crispy_field }}</div>
+                            <div class="col-md-6">{{ user_form.last_name|as_crispy_field }}</div>
+                            <div class="col-md-12">{{ user_form.email|as_crispy_field }}</div>
+                            <div class="col-md-6">{{ profile_form.telephone|as_crispy_field }}</div>
+                            <div class="col-md-6">{{ etudiant_form.niveau|as_crispy_field }}</div>
+                            <div class="col-md-6">{{ etudiant_form.filiere|as_crispy_field }}</div>
+                        </div>
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <button type="submit" class="btn btn-primary btn-sm rounded-pill">Enregistrer</button>
+                            <a href="{% url 'stages:dashboard' %}" class="btn btn-secondary btn-sm rounded-pill">Annuler</a>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %} 

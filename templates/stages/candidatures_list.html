@@ -1,0 +1,236 @@
+{% extends 'dashboard_base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% trans "Candidatures reçues" %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- En-tête avec statistiques -->
+    <div class="row mb-4">
+        <div class="col-xl-3 col-sm-6 mb-4">
+            <div class="card">
+                <div class="card-body p-3">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="numbers">
+                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Total</p>
+                                <h5 class="font-weight-bolder">{{ total_candidatures }}</h5>
+                            </div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="icon icon-shape bg-gradient-primary shadow-primary text-center rounded-circle">
+                                <i class="fas fa-file-alt text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 mb-4">
+            <div class="card">
+                <div class="card-body p-3">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="numbers">
+                                <p class="text-sm mb-0 text-uppercase font-weight-bold">En attente</p>
+                                <h5 class="font-weight-bolder">{{ en_attente_count }}</h5>
+                            </div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="icon icon-shape bg-gradient-warning shadow-warning text-center rounded-circle">
+                                <i class="fas fa-clock text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 mb-4">
+            <div class="card">
+                <div class="card-body p-3">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="numbers">
+                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Acceptées</p>
+                                <h5 class="font-weight-bolder">{{ acceptees_count }}</h5>
+                            </div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="icon icon-shape bg-gradient-success shadow-success text-center rounded-circle">
+                                <i class="fas fa-check text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-sm-6 mb-4">
+            <div class="card">
+                <div class="card-body p-3">
+                    <div class="row">
+                        <div class="col-8">
+                            <div class="numbers">
+                                <p class="text-sm mb-0 text-uppercase font-weight-bold">Refusées</p>
+                                <h5 class="font-weight-bolder">{{ refusees_count }}</h5>
+                            </div>
+                        </div>
+                        <div class="col-4 text-end">
+                            <div class="icon icon-shape bg-gradient-danger shadow-danger text-center rounded-circle">
+                                <i class="fas fa-times text-lg opacity-10" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filtres -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label for="search" class="form-label">Rechercher</label>
+                    <input type="text" class="form-control" id="search" name="search" value="{{ search|default:'' }}" placeholder="Nom, prénom ou titre...">
+                </div>
+                <div class="col-md-3">
+                    <label for="stage" class="form-label">Offre de stage</label>
+                    <select class="form-select" id="stage" name="stage">
+                        <option value="">Toutes les offres</option>
+                        {% for stage in stages %}
+                        <option value="{{ stage.id }}" {% if selected_stage == stage.id|stringformat:"s" %}selected{% endif %}>
+                            {{ stage.titre }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="statut" class="form-label">Statut</label>
+                    <select class="form-select" id="statut" name="statut">
+                        <option value="">Tous les statuts</option>
+                        {% for value, label in statut_choices %}
+                        <option value="{{ value }}" {% if selected_statut == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-search me-2"></i> Filtrer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Liste des candidatures -->
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table align-items-center mb-0">
+                <thead>
+                    <tr>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Étudiant</th>
+                        <th class="text-uppercase text-secondary text-xxs font-weight-bolder opacity-7 ps-2">Offre</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Date</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Statut</th>
+                        <th class="text-center text-uppercase text-secondary text-xxs font-weight-bolder opacity-7">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for candidature in candidatures %}
+                    <tr>
+                        <td>
+                            <div class="d-flex px-2 py-1">
+                                <div class="d-flex flex-column justify-content-center">
+                                    <h6 class="mb-0 text-sm">{{ candidature.etudiant.get_full_name }}</h6>
+                                    <p class="text-xs text-secondary mb-0">{{ candidature.etudiant.email }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <p class="text-xs font-weight-bold mb-0">{{ candidature.stage.titre }}</p>
+                            <p class="text-xs text-secondary mb-0">{{ candidature.stage.type_stage }}</p>
+                        </td>
+                        <td class="align-middle text-center">
+                            <span class="text-secondary text-xs font-weight-bold">
+                                {{ candidature.date_candidature|date:"d/m/Y" }}
+                            </span>
+                        </td>
+                        <td class="align-middle text-center text-sm">
+                            <span class="badge badge-sm bg-gradient-{{ candidature.statut }}">
+                                {{ candidature.get_statut_display }}
+                            </span>
+                        </td>
+                        <td class="align-middle text-center">
+                            <div class="btn-group" role="group">
+                                <a href="{% url 'stages:candidature_detail' candidature.pk %}" 
+                                   class="btn btn-link text-dark px-3 mb-0">
+                                    <i class="fas fa-eye text-dark me-2"></i>Voir
+                                </a>
+                                <a href="{% url 'stages:contact_etudiant' candidature.etudiant.pk %}"
+                                   class="btn btn-link text-dark px-3 mb-0">
+                                    <i class="fas fa-envelope text-dark me-2"></i>Contacter
+                                </a>
+                                {% if candidature.statut == 'en_attente' %}
+                                <a href="{% url 'stages:candidature_update_status' candidature.pk 'acceptee' %}"
+                                   class="btn btn-link text-success px-3 mb-0">
+                                    <i class="fas fa-check text-success me-2"></i>Accepter
+                                </a>
+                                <a href="{% url 'stages:candidature_update_status' candidature.pk 'refusee' %}"
+                                   class="btn btn-link text-danger px-3 mb-0">
+                                    <i class="fas fa-times text-danger me-2"></i>Refuser
+                                </a>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" class="text-center py-4">
+                            <p class="text-secondary mb-0">Aucune candidature trouvée</p>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<style>
+.icon-shape {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.bg-gradient-primary {
+    background: linear-gradient(135deg, #3b5cb8 0%, #4f74e3 100%);
+}
+.bg-gradient-warning {
+    background: linear-gradient(135deg, #f9a825 0%, #fbc02d 100%);
+}
+.bg-gradient-success {
+    background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+}
+.bg-gradient-danger {
+    background: linear-gradient(135deg, #ef5350 0%, #f44336 100%);
+}
+.badge-sm {
+    padding: 0.45em 0.9em;
+    font-size: 0.75em;
+}
+.bg-gradient-en_attente {
+    background: linear-gradient(135deg, #f9a825 0%, #fbc02d 100%);
+}
+.bg-gradient-acceptee {
+    background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+}
+.bg-gradient-refusee {
+    background: linear-gradient(135deg, #ef5350 0%, #f44336 100%);
+}
+</style>
+{% endblock %} 
