@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.utils.translation import gettext_lazy as _
-from .models import Stage, Candidature, UserProfile, Etudiant, Responsable, Entreprise, FicheStage, Document, Notification
+from .models import Stage, Candidature, UserProfile, Etudiant, Responsable, Entreprise, FicheStage, Document, Notification, Message
 from .forms import StageForm, CandidatureForm, EtudiantSignUpForm, ResponsableSignUpForm, EntrepriseSignUpForm, FicheStageForm, DocumentForm, EtudiantProfileForm, UserProfileForm, UserEditForm, EntrepriseProfileForm
 from django.contrib.auth import login
 from django.contrib.auth import get_backends
@@ -17,6 +17,7 @@ from datetime import datetime
 from django.db.models.functions import TruncMonth
 from django.db.models import Count
 import calendar
+from django.core.mail import send_mail
 
 def home(request):
     if request.user.is_authenticated:
@@ -56,7 +57,13 @@ def home(request):
 
 def stage_list(request):
     """Vue pour la page d'accueil avec la liste des stages actifs"""
-    stages = Stage.objects.filter(est_actif=True)
+    user = request.user
+    if user.is_authenticated and hasattr(user, 'profile') and user.profile.user_type == 'entreprise' and hasattr(user.profile, 'entreprise'):
+        # L'entreprise ne voit que ses offres
+        stages = Stage.objects.filter(est_actif=True, entreprise=user.profile.entreprise)
+    else:
+        # Les autres voient toutes les offres actives
+        stages = Stage.objects.filter(est_actif=True)
     
     # Filtres
     query = request.GET.get('q')
@@ -164,6 +171,12 @@ def candidature_create(request, stage_pk):
             candidature.stage = stage
             candidature.etudiant = request.user
             candidature.save()
+            # Notification automatique à l'étudiant
+            Notification.objects.create(
+                destinataire=request.user,
+                titre=_('Candidature envoyée'),
+                message=_('Votre candidature pour le stage "{}" est en cours de traitement par l\'entreprise.').format(stage.titre)
+            )
             messages.success(request, _('Candidature envoyée avec succès !'))
             return redirect('stages:stage_detail', pk=stage_pk)
     else:
@@ -295,14 +308,26 @@ def dashboard(request):
             offres_pourvues_count = Stage.objects.filter(entreprise=entreprise_profile, est_actif=False).count()
             candidatures_count = Candidature.objects.filter(stage__entreprise=entreprise_profile).count()
             now = timezone.now()
+            # Candidatures du mois courant (tous genres)
             candidatures_mois_count = Candidature.objects.filter(stage__entreprise=entreprise_profile, date_candidature__year=now.year, date_candidature__month=now.month).count()
-            candidatures_femmes = Candidature.objects.filter(stage__entreprise=entreprise_profile, etudiant__user_profile__user__profile__user_type='etudiant', etudiant__user_profile__user__profile__genre='F').count() if hasattr(user_profile, 'genre') else 0
-            candidatures_hommes = Candidature.objects.filter(stage__entreprise=entreprise_profile, etudiant__user_profile__user__profile__user_type='etudiant', etudiant__user_profile__user__profile__genre='M').count() if hasattr(user_profile, 'genre') else 0
-            
-            # Calcul des pourcentages H/F
-            total_candidatures_genre = candidatures_femmes + candidatures_hommes
-            pourcentage_femmes = round((candidatures_femmes / total_candidatures_genre * 100) if total_candidatures_genre > 0 else 0)
-            pourcentage_hommes = round((candidatures_hommes / total_candidatures_genre * 100) if total_candidatures_genre > 0 else 0)
+            # Candidatures femmes du mois courant
+            candidatures_femmes_mois = Candidature.objects.filter(
+                stage__entreprise=entreprise_profile,
+                date_candidature__year=now.year,
+                date_candidature__month=now.month,
+                etudiant__profile__etudiant__genre='F'
+            ).count()
+            # Candidatures hommes du mois courant
+            candidatures_hommes_mois = Candidature.objects.filter(
+                stage__entreprise=entreprise_profile,
+                date_candidature__year=now.year,
+                date_candidature__month=now.month,
+                etudiant__profile__etudiant__genre='M'
+            ).count()
+            # Calcul des pourcentages H/F du mois courant
+            total_candidatures_genre_mois = candidatures_femmes_mois + candidatures_hommes_mois
+            pourcentage_femmes_mois = round((candidatures_femmes_mois / total_candidatures_genre_mois * 100) if total_candidatures_genre_mois > 0 else 0)
+            pourcentage_hommes_mois = round((candidatures_hommes_mois / total_candidatures_genre_mois * 100) if total_candidatures_genre_mois > 0 else 0)
             
             messages_non_lus = Notification.objects.filter(destinataire=user, lue=False).count() if 'Notification' in globals() else 0
             
@@ -310,7 +335,7 @@ def dashboard(request):
             candidatures_recentes = Candidature.objects.filter(
                 stage__entreprise=entreprise_profile
             ).select_related(
-                'etudiant__user_profile__user',
+                'etudiant',
                 'stage'
             ).order_by('-date_candidature')[:5]
             
@@ -321,9 +346,12 @@ def dashboard(request):
                 'candidatures_count': candidatures_count,
                 'candidatures_mois_count': candidatures_mois_count,
                 'messages_non_lus': messages_non_lus,
-                'pourcentage_hommes': pourcentage_hommes,
-                'pourcentage_femmes': pourcentage_femmes,
                 'candidatures_recentes': candidatures_recentes,
+                # Ajout pour le graphique H/F du mois
+                'candidatures_femmes_mois': candidatures_femmes_mois,
+                'candidatures_hommes_mois': candidatures_hommes_mois,
+                'pourcentage_femmes_mois': pourcentage_femmes_mois,
+                'pourcentage_hommes_mois': pourcentage_hommes_mois,
             }
         template = 'stages/dashboard_entreprise.html'
 
@@ -430,7 +458,7 @@ def candidatures_list(request):
     candidatures = Candidature.objects.filter(
         stage__entreprise=entreprise
     ).select_related(
-        'etudiant__user_profile__user',
+        'etudiant',
         'stage'
     ).order_by('-date_candidature')
 
@@ -480,7 +508,7 @@ def candidature_detail(request, pk):
     
     candidature = get_object_or_404(
         Candidature.objects.select_related(
-            'etudiant__user_profile__user',
+            'etudiant',
             'stage'
         ),
         pk=pk,
@@ -513,14 +541,21 @@ def candidature_update_status(request, pk, nouveau_statut):
     old_status = candidature.statut
     candidature.statut = nouveau_statut
     candidature.save()
-    
-    # Créer une notification pour l'étudiant
+
+    # Créer une notification/message personnalisé selon le statut
+    if nouveau_statut == 'acceptee':
+        notif_message = _(f"Félicitations ! Votre candidature pour l'offre '{candidature.stage.titre}' a été acceptée. L'entreprise vous contactera prochainement.")
+    elif nouveau_statut == 'refusee':
+        notif_message = _(f"Nous sommes désolés, votre candidature pour l'offre '{candidature.stage.titre}' a été refusée. Nous vous souhaitons bonne chance pour la suite.")
+    else:
+        notif_message = _(f"Le statut de votre candidature pour l'offre '{candidature.stage.titre}' est en cours de traitement.")
+
     Notification.objects.create(
-        destinataire=candidature.etudiant.user_profile.user,
+        destinataire=candidature.etudiant,
         titre=_("Mise à jour de votre candidature"),
-        message=_(f"Le statut de votre candidature pour l'offre '{candidature.stage.titre}' a été mis à jour : {candidature.get_statut_display()}")
+        message=notif_message
     )
-    
+
     messages.success(request, _("Le statut de la candidature a été mis à jour."))
     return redirect('stages:candidature_detail', pk=pk)
 
@@ -539,16 +574,25 @@ def contact_etudiant(request, pk):
         message = request.POST.get('message')
         
         if not sujet or not message:
-            messages.error(request, _("Veuillez remplir tous les champs."))
+            messages.error(request, _( "Veuillez remplir tous les champs." ))
         else:
             # Créer une notification pour l'étudiant
+            destinataire = etudiant.user_profile.user if hasattr(etudiant, 'user_profile') and etudiant.user_profile else etudiant.user
             Notification.objects.create(
-                destinataire=etudiant.user_profile.user,
+                destinataire=destinataire,
                 titre=sujet,
                 message=message,
                 expediteur=request.user
             )
-            messages.success(request, _("Message envoyé avec succès."))
+            # Envoi d'un email à l'étudiant
+            send_mail(
+                subject=sujet,
+                message=message,
+                from_email=request.user.email,
+                recipient_list=[destinataire.email],
+                fail_silently=True
+            )
+            messages.success(request, _( "Message envoyé avec succès (notification + email)." ))
             return redirect('stages:candidatures_list')
     
     context = {
@@ -591,15 +635,38 @@ def entreprise_profile(request):
 
 @login_required
 def messages_list(request):
-    """Vue pour afficher les notifications/messages"""
-    notifications = Notification.objects.filter(
-        destinataire=request.user
-    ).order_by('-date_creation')
-    
-    # Marquer toutes les notifications comme lues
-    notifications.update(lue=True)
-    
-    context = {
-        'notifications': notifications
-    }
-    return render(request, 'stages/messages_list.html', context)
+    """Vue pour afficher la boîte de réception de l'utilisateur (étudiant ou entreprise)"""
+    messages_recus = Message.objects.filter(destinataire=request.user).order_by('-date_envoi')
+    messages_envoyes = Message.objects.filter(expediteur=request.user).order_by('-date_envoi')
+    return render(request, 'stages/messages_list.html', {
+        'messages_recus': messages_recus,
+        'messages_envoyes': messages_envoyes,
+    })
+
+@login_required
+def message_detail(request, pk):
+    """Vue pour lire un message et y répondre"""
+    message = get_object_or_404(Message, pk=pk)
+    if message.destinataire != request.user and message.expediteur != request.user:
+        return redirect('stages:messages_list')
+    # Marquer comme lu si c'est le destinataire
+    if message.destinataire == request.user and not message.lu:
+        message.lu = True
+        message.save()
+    if request.method == 'POST':
+        contenu = request.POST.get('contenu')
+        if contenu:
+            Message.objects.create(
+                expediteur=request.user,
+                destinataire=message.expediteur,
+                sujet='RE: ' + message.sujet,
+                contenu=contenu
+            )
+            # Créer une notification pour l'expéditeur initial
+            Notification.objects.create(
+                destinataire=message.expediteur,
+                titre='Nouveau message',
+                message=f"Vous avez reçu une réponse à votre message : {message.sujet}"
+            )
+            return redirect('stages:messages_list')
+    return render(request, 'stages/message_detail.html', {'message': message})

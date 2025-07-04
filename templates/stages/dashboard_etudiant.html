@@ -272,11 +272,12 @@
          <a href="{% url 'stages:dashboard' %}" class="logo-text"> <i class="fas fa-graduation-cap" aria-hidden="true"></i>Career Step</a>
         </div>
         <nav>
-            <a href="{% url 'stages:dashboard' %}" class="active"><i class="fas fa-tachometer-alt"></i> {% trans "Tableau de bord" %}</a>
-            <a href="{% url 'stages:mes_candidatures' %}"><i class="fas fa-file-alt"></i> {% trans "Mes candidatures" %}</a>
-            <a href="{% url 'stages:stage_list' %}"><i class="fas fa-search"></i> {% trans "Trouver un stage" %}</a>
-            <a href="{% url 'stages:profil' %}"><i class="fas fa-user-circle"></i> {% trans "Mon Profil" %}</a>
-            <a href="{% url 'account_logout' %}" class="logout-link"><i class="fas fa-sign-out-alt"></i> {% trans "Déconnexion" %}</a>
+            <a href="{% url 'stages:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="{% url 'stages:mes_candidatures' %}" class="{% if request.resolver_match.url_name == 'mes_candidatures' %}active{% endif %}"><i class="fas fa-file-alt"></i> Mes Candidatures</a>
+            <a href="{% url 'stages:stage_list' %}" class="{% if request.resolver_match.url_name == 'stage_list' %}active{% endif %}"><i class="fas fa-briefcase"></i> Offres</a>
+            <a href="{% url 'stages:messages' %}" class="{% if request.resolver_match.url_name == 'messages' %}active{% endif %}"><i class="fas fa-envelope"></i> Messagerie</a>
+            <a href="{% url 'stages:profil' %}" class="{% if request.resolver_match.url_name == 'profil' %}active{% endif %}"><i class="fas fa-user"></i> Profil</a>
+            <a href="{% url 'account_logout' %}" class="logout-link"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
         </nav>
     </aside>
 

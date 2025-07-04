@@ -32,17 +32,17 @@
                                     </p>
                                     <p class="text-sm mb-2">
                                         <span class="font-weight-bold me-2">Email:</span>
-                                        {{ etudiant.user_profile.user.email }}
+                                        {{ etudiant.email }}
                                     </p>
                                 </div>
                                 <div class="col-md-6">
                                     <p class="text-sm mb-2">
                                         <span class="font-weight-bold me-2">Téléphone:</span>
-                                        {{ etudiant.telephone|default:"Non renseigné" }}
+                                        {{ etudiant.profile.telephone|default:"Non renseigné" }}
                                     </p>
                                     <p class="text-sm mb-2">
                                         <span class="font-weight-bold me-2">Filière:</span>
-                                        {{ etudiant.filiere }}
+                                        {{ etudiant.profile.etudiant.filiere }}
                                     </p>
                                 </div>
                             </div>

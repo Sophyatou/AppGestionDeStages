@@ -1,32 +1,63 @@
 {% extends 'dashboard_base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Mes Messages" %}{% endblock %}
+{% block title %}Messagerie{% endblock %}
 
 {% block content %}
-<div class="container-fluid py-4">
-    <div class="card">
-        <div class="card-header pb-0">
-            <h6>{% trans "Boîte de réception" %}</h6>
-        </div>
-        <div class="card-body px-0 pt-0 pb-2">
-            <div class="list-group list-group-flush">
-                {% for notif in notifications %}
-                <a href="#" class="list-group-item list-group-item-action border-0">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h6 class="mb-1">{{ notif.titre }}</h6>
-                        <small class="text-muted">{{ notif.date_creation|timesince }} ago</small>
-                    </div>
-                    <p class="mb-1">{{ notif.message }}</p>
-                    {% if notif.expediteur %}
-                    <small class="text-muted">De : {{ notif.expediteur.get_full_name }}</small>
-                    {% endif %}
-                </a>
-                {% empty %}
-                <div class="text-center p-4">
-                    <p class="text-muted">{% trans "Vous n'avez aucun message." %}</p>
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-lg" style="border-radius:22px;">
+                <div class="card-body p-4">
+                    <h3 class="mb-4">Boîte de réception</h3>
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>De</th>
+                                <th>Sujet</th>
+                                <th>Date</th>
+                                <th>Lu</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for msg in messages_recus %}
+                            <tr {% if not msg.lu %}class="fw-bold"{% endif %}>
+                                <td>{{ msg.expediteur.get_full_name|default:msg.expediteur.username }}</td>
+                                <td>{{ msg.sujet }}</td>
+                                <td>{{ msg.date_envoi|date:"d/m/Y H:i" }}</td>
+                                <td>{% if msg.lu %}Oui{% else %}Non{% endif %}</td>
+                                <td><a href="{% url 'stages:message_detail' msg.pk %}" class="btn btn-sm btn-outline-primary">Lire</a></td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="5" class="text-center text-muted">Aucun message reçu</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
+                    <h4 class="mt-5 mb-3">Messages envoyés</h4>
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>À</th>
+                                <th>Sujet</th>
+                                <th>Date</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        {% for msg in messages_envoyes %}
+                            <tr>
+                                <td>{{ msg.destinataire.get_full_name|default:msg.destinataire.username }}</td>
+                                <td>{{ msg.sujet }}</td>
+                                <td>{{ msg.date_envoi|date:"d/m/Y H:i" }}</td>
+                                <td><a href="{% url 'stages:message_detail' msg.pk %}" class="btn btn-sm btn-outline-primary">Voir</a></td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="4" class="text-center text-muted">Aucun message envoyé</td></tr>
+                        {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
-                {% endfor %}
             </div>
         </div>
     </div>

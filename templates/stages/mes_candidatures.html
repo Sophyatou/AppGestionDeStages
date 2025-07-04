@@ -39,24 +39,29 @@
     color: #233a6b;
   }
   .candidatures-list {
-    max-width: 950px;
+    max-width: 800px;
     margin: 0 auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem 1.5rem;
+    justify-content: flex-start;
   }
   .stage-card {
-    border-radius: 22px;
-    transition: box-shadow 0.2s, transform 0.2s;
+    border-radius: 16px;
     background: #fff;
-    max-width: 420px;
-    margin: auto;
-    box-shadow: 0 2px 12px 0 rgba(44,62,80,0.10);
+    max-width: 340px;
+    min-width: 260px;
+    margin: 0;
+    box-shadow: 0 1px 6px 0 rgba(44,62,80,0.08);
     border: none;
     display: flex;
     flex-direction: column;
-    min-height: 280px;
+    min-height: 220px;
+    transition: box-shadow 0.2s, transform 0.2s;
   }
   .stage-card:hover {
-    box-shadow: 0 8px 32px 0 rgba(44,62,80,0.18);
-    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 4px 16px 0 rgba(44,62,80,0.13);
+    transform: translateY(-2px) scale(1.01);
   }
   .stage-logo, .logo-placeholder {
     width: 48px; height: 48px;
@@ -79,7 +84,7 @@
     border-top: none;
     background: transparent;
     padding-top: 0;
-    padding-bottom: 1.1rem;
+    padding-bottom: 1rem;
   }
   .btn-sm.rounded-pill {
     border-radius: 20px !important;
@@ -106,6 +111,10 @@
     .candidatures-list {
       padding: 0 0.5rem;
     }
+  }
+  @media (max-width: 900px) {
+    .candidatures-list { gap: 1.2rem 0.5rem; }
+    .stage-card { max-width: 100%; min-width: 180px; }
   }
   .btn-back {
     background: #fff;

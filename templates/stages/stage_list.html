@@ -1,7 +1,13 @@
 {% extends 'list_base.html' %}
 {% load i18n %}
 
-{% block title %}{% trans "Trouver un stage" %}{% endblock %}
+{% block title %}
+  {% if user.is_authenticated and user.profile and user.profile.user_type == 'entreprise' %}
+    {% trans "Mes Offres" %}
+  {% else %}
+    {% trans "Trouver un stage" %}
+  {% endif %}
+{% endblock %}
 
 {% block content %}
 <style>
@@ -78,26 +84,38 @@
   .stage-list-row {
     display: flex;
     flex-wrap: wrap;
-    justify-content: left;
-    gap: 2.2rem 2.2rem;
-    margin-bottom: 2.5rem;
+    gap: 1.5rem;
+    align-items: flex-start;
   }
   .stage-card {
-    border-radius: 22px;
-    transition: box-shadow 0.2s, transform 0.2s;
+    border-radius: 14px;
+    box-shadow: 0 1px 6px 0 rgba(44,62,80,0.08);
     background: #fff;
-    max-width: 350px;
-    min-width: 270px;
-    margin: 0 auto;
-    box-shadow: 0 2px 12px 0 rgba(44,62,80,0.10);
-    border: none;
+    padding: 1.2rem 1.5rem 1rem 1.5rem;
     display: flex;
     flex-direction: column;
-    min-height: 220px;
+    align-items: flex-start;
+    gap: 0.7rem;
+    width: 350px;
+    max-width: 100%;
+    min-height: 120px;
+    transition: box-shadow 0.2s, transform 0.2s;
+    margin: 0;
+    position: relative;
   }
   .stage-card:hover {
-    box-shadow: 0 8px 32px 0 rgba(44,62,80,0.18);
-    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 4px 16px 0 rgba(44,62,80,0.13);
+    transform: translateY(-2px) scale(1.01);
+  }
+  .card-footer {
+    background: transparent;
+    border: none;
+    width: 100%;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 0.5rem 0 0 0;
+    gap: 0.5rem;
   }
   .stage-logo, .logo-placeholder {
     width: 44px; height: 44px;
@@ -111,43 +129,46 @@
     border-radius: 20px !important;
     padding: 0.4rem 1.2rem;
     font-size: 1rem;
-  
   }
   .btn-primary {
     background-color: #192850;
+    border-color: #192850;
   }
   .btn-success {
     background-color: #1c541e;
+    border-color: #1c541e;
   }
-  @media (max-width: 992px) {
-    .stage-list-row {
-      gap: 1.2rem 1.2rem;
-    }
-    .stage-card {
-      max-width: 95vw;
-      min-width: 220px;
-    }
-    .stage-hero {
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 1.5rem 1rem 1.5rem 1rem;
-      min-height: 90px;
-    }
-    .stage-hero .hero-illu {
-      display: none;
-    }
+  @media (max-width: 900px) {
+    .stage-list-row { gap: 1rem; }
+    .stage-card { width: 100%; padding: 0.7rem; }
+  }
+  .card-text.text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    min-height: 48px;
+    max-height: 3.2em;
   }
 </style>
 <div class="container py-4">
-  <a href="{% url 'stages:dashboard' %}" class="btn-back mb-3"><i class="fas fa-arrow-left"></i> </a>
-  <div class="stage-hero mb-4">
-    <div class="hero-text">
-      <h1 class="display-6 mb-1" style="color:#fff;">{% trans "Trouver un stage" %}</h1>
-      <p class="mb-0" style="color:#f0f4ff; font-size:1.08rem;">{% trans "Découvrez toutes les offres de stage disponibles et postulez en quelques clics !" %}</p>
+  <a href="{% url 'stages:dashboard' %}" class="btn-back mb-3"><i class="fas fa-arrow-left"></i></a>
+  {% if user.is_authenticated and user.profile and user.profile.user_type == 'entreprise' %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h1 class="display-6 mb-0">{% trans "Mes Offres" %}</h1>
+      <a href="{% url 'stages:stage_create' %}" class="btn btn-primary rounded-pill"><i class="fas fa-plus"></i> {% trans "Nouvelle offre" %}</a>
     </div>
-    <!-- <img src="https://www.svgrepo.com/show/452214/clipboard-checklist.svg" alt="Illustration" class="hero-illu"> -->
-  </div>
+  {% else %}
+    <div class="stage-hero mb-4">
+      <div class="hero-text">
+        <h1 class="display-6 mb-1" style="color:#fff;">{% trans "Trouver un stage" %}</h1>
+        <p class="mb-0" style="color:#f0f4ff; font-size:1.08rem;">{% trans "Découvrez toutes les offres de stage disponibles et postulez en quelques clics !" %}</p>
+      </div>
+    </div>
+  {% endif %}
   <div class="row justify-content-center">
+    {% if not user.is_authenticated or not user.profile or user.profile.user_type != 'entreprise' %}
     <div class="col-md-3 mb-4">
       <div class="stage-filters">
         <h5 class="card-title mb-0">
@@ -158,7 +179,7 @@
             <label for="q" class="form-label">{% trans "Recherche" %}</label>
             <div class="input-group">
               <span class="input-group-text"><i class="fas fa-search"></i></span>
-              <input type="text" class="form-control" id="q" name="q" value="{{ request.GET.q }}" placeholder="{% trans 'Rechercher...' %}">
+              <input type="text" class="form-control" id="q" name="q" value="{{ request.GET.q|default_if_none:'' }}" placeholder="{% trans 'Rechercher...' %}">
             </div>
           </div>
           <div class="mb-3">
@@ -170,41 +191,48 @@
               {% endfor %}
             </select>
           </div>
-          <button type="submit" class="btn btn-primary btn-sm rounded-pill w-100 mt-2">Filtrer</button>
+          <button type="submit" class="btn btn-primary btn-sm rounded-pill w-100 mt-2">{% trans "Filtrer" %}</button>
         </form>
       </div>
     </div>
+    {% endif %}
     <div class="col-md-9">
+      {% if not user.is_authenticated %}
+        <div class="alert alert-info text-center mb-4">{% trans "Connectez-vous ou inscrivez-vous pour voir les détails d'une offre ou postuler." %}</div>
+      {% endif %}
       {% if page_obj %}
         <div class="stage-list-row">
           {% for stage in page_obj %}
-            <div>
-              <div class="stage-card card h-100 shadow-sm">
-                <div class="card-body d-flex flex-column">
-                  <div class="d-flex align-items-center mb-3">
-                    <div class="stage-logo me-3">
-                      <div class="logo-placeholder">{{ stage.entreprise.nom|slice:":2"|upper }}</div>
+            <div class="stage-card card h-100 shadow-sm">
+              <div class="card-body d-flex flex-column p-0">
+                <div class="d-flex align-items-center mb-3">
+                  <div class="stage-logo me-3">
+                    <div class="logo-placeholder">
+                      {{ stage.entreprise.nom|default_if_none:""|slice:":2"|upper }}
                     </div>
-                    <span class="badge bg-primary">{{ stage.get_type_stage_display }}</span>
                   </div>
-                  <h5 class="card-title mb-1">{{ stage.titre }}</h5>
-                  <h6 class="card-subtitle mb-2 text-muted">{{ stage.entreprise.nom }}</h6>
-                  <p class="card-text text-truncate" style="min-height:48px;">{{ stage.description|truncatechars:80 }}</p>
+                  <span class="badge bg-primary">{{ stage.get_type_stage_display }}</span>
                 </div>
-                <div class="card-footer bg-transparent border-0 d-flex justify-content-between align-items-center">
-                  <span class="text-muted small"><i class="fas fa-clock me-1"></i>{{ stage.get_duree_display }}</span>
-                  <div>
-                    <a href="{% url 'stages:stage_detail' stage.pk %}" class="btn btn-outline-primary btn-sm rounded-pill">Détails</a>
-                    {% if user.is_authenticated %}
-                      <a href="{% url 'stages:candidature_create' stage.pk %}" class="btn btn-success btn-sm rounded-pill ms-1">Postuler</a>
-                    {% endif %}
-                  </div>
-                </div>
+                <h5 class="card-title mb-1">{{ stage.titre }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">{{ stage.entreprise.nom }}</h6>
+                <p class="card-text text-truncate">{{ stage.description|truncatechars:80 }}</p>
+              </div>
+              <div class="card-footer">
+                <span class="text-muted small me-auto"><i class="fas fa-clock me-1"></i>{{ stage.get_duree_display }}</span>
+                {% if user.is_authenticated and user.profile and user.profile.user_type == 'entreprise' and stage.entreprise_id == user.profile.entreprise.id %}
+                  <a href="{% url 'stages:stage_update' stage.pk %}" class="btn btn-outline-warning btn-sm rounded-pill">{% trans "Modifier" %}</a>
+                  <a href="{% url 'stages:stage_delete' stage.pk %}" class="btn btn-outline-danger btn-sm rounded-pill" onclick="return confirm('{% trans "Confirmer la suppression de cette offre ?" %}');">{% trans "Supprimer" %}</a>
+                {% elif user.is_authenticated %}
+                  <a href="{% url 'stages:stage_detail' stage.pk %}" class="btn btn-outline-primary btn-sm rounded-pill">{% trans "Détails" %}</a>
+                  <a href="{% url 'stages:candidature_create' stage.pk %}" class="btn btn-success btn-sm rounded-pill">{% trans "Postuler" %}</a>
+                {% else %}
+                  <a href="{% url 'account_login' %}?next={% url 'stages:stage_detail' stage.pk %}" class="btn btn-outline-primary btn-sm rounded-pill">{% trans "Détails" %}</a>
+                  <a href="{% url 'account_login' %}?next={% url 'stages:candidature_create' stage.pk %}" class="btn btn-success btn-sm rounded-pill">{% trans "Postuler" %}</a>
+                {% endif %}
               </div>
             </div>
           {% endfor %}
         </div>
-       
       {% else %}
         <div class="alert alert-info" data-aos="fade-up">
           <i class="fas fa-info-circle me-2"></i>
@@ -214,4 +242,4 @@
     </div>
   </div>
 </div>
-{% endblock %} 
+{% endblock %}

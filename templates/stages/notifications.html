@@ -1,0 +1,31 @@
+{% extends 'dashboard_base.html' %}
+{% load i18n %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-lg" style="border-radius:22px;">
+                <div class="card-body p-4">
+                    <h3 class="mb-4">Notifications</h3>
+                    <ul class="list-group list-group-flush">
+                        {% for notif in notifications %}
+                        <li class="list-group-item d-flex justify-content-between align-items-start {% if not notif.lue %}fw-bold{% endif %}">
+                            <div>
+                                <div class="mb-1">{{ notif.titre }}</div>
+                                <div class="text-muted small">{{ notif.message }}</div>
+                            </div>
+                            <span class="badge bg-secondary rounded-pill">{{ notif.date_creation|date:"d/m/Y H:i" }}</span>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item text-center text-muted">Aucune notification</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

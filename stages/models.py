@@ -44,6 +44,12 @@ class Etudiant(models.Model):
 
     user_profile = models.OneToOneField(UserProfile, on_delete=models.CASCADE, related_name='etudiant', null=True, blank=True)
     filiere = models.CharField(max_length=100, blank=True)
+    GENRE_CHOICES = (
+        ('M', 'Homme'),
+        ('F', 'Femme'),
+        ('A', 'Autre'),
+    )
+    genre = models.CharField(max_length=1, choices=GENRE_CHOICES, default='M')
     niveau = models.CharField(_("Niveau d'étude"), max_length=50, blank=True, null=True)
     cv = models.FileField(upload_to='cv/', blank=True, null=True, verbose_name=_("CV"))
     lettre_motivation = models.FileField(upload_to='lettres/', blank=True, null=True, verbose_name=_("Lettre de motivation"))
@@ -250,3 +256,14 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.titre} - {self.destinataire}"
+
+class Message(models.Model):
+    expediteur = models.ForeignKey(User, on_delete=models.CASCADE, related_name='messages_envoyes')
+    destinataire = models.ForeignKey(User, on_delete=models.CASCADE, related_name='messages_recus')
+    sujet = models.CharField(max_length=200)
+    contenu = models.TextField()
+    date_envoi = models.DateTimeField(auto_now_add=True)
+    lu = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.sujet} ({self.expediteur} → {self.destinataire})"

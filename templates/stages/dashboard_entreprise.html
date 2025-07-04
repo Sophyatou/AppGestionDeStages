@@ -104,6 +104,11 @@
         object-fit: cover;
         border: 2px solid #fff;
         box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        background: #3556a8;
     }
     .profile-header .profile-info {
         display: flex;
@@ -163,6 +168,7 @@
         gap: 1.5rem;
         cursor: pointer;
         transition: transform 0.2s;
+        text-decoration: none;
     }
     .stat-card:hover {
         transform: translateY(-5px);
@@ -205,26 +211,26 @@
         margin: 0;
     }
     .table-responsive { overflow-x: auto; }
-    .dashboard-table { 
-        width: 100%; 
-        border-collapse: collapse; 
+    .dashboard-table {
+        width: 100%;
+        border-collapse: collapse;
     }
     .dashboard-table th, .dashboard-table td {
         padding: 1rem 0.75rem;
         text-align: left;
         border-bottom: 1px solid #f0f0f0;
     }
-    .dashboard-table th { 
-        font-weight: 600; 
-        color: #6c757d; 
-        font-size: 0.9rem; 
+    .dashboard-table th {
+        font-weight: 600;
+        color: #6c757d;
+        font-size: 0.9rem;
     }
-    .dashboard-table td { 
-        color: #343a40; 
-        font-size: 0.95rem; 
+    .dashboard-table td {
+        color: #343a40;
+        font-size: 0.95rem;
     }
-    .dashboard-table tr:last-child td { 
-        border-bottom: none; 
+    .dashboard-table tr:last-child td {
+        border-bottom: none;
     }
     .status-badge {
         padding: 0.3rem 0.8rem;
@@ -261,30 +267,9 @@
         color: #6c757d;
         min-width: 80px;
     }
-    @media (max-width: 992px) {
-        .main-content-modern {
-            margin-left: 0;
-            padding: 1rem;
-            width: 100%;
-        }
-        .sidebar-modern {
-            display: none;
-        }
-        .dashboard-grid {
-            grid-template-columns: 1fr;
-        }
-        .banner-modern {
-            padding: 1.5rem;
-        }
-        .banner-modern h2 {
-            font-size: 1.5rem;
-        }
-        .banner-illu {
-            display: none;
-        }
-    }
-</style>
 
+    /* Styles dynamiques pour les barres de genre */
+</style>
 <div class="company-dashboard-modern">
     <!-- Sidebar -->
     <aside class="sidebar-modern">
@@ -294,46 +279,48 @@
             </a>
         </div>
         <nav>
-            <a href="{% url 'stages:dashboard' %}" class="active">
-                <i class="fas fa-tachometer-alt"></i> Tableau de bord
-            </a>
-            <a href="{% url 'stages:stage_list' %}">
-                <i class="fas fa-briefcase"></i> Mes offres
-            </a>
-            <a href="{% url 'stages:candidatures_list' %}">
-                <i class="fas fa-file-alt"></i> Candidatures
-            </a>
-            <a href="{% url 'stages:entreprise_profile' %}">
-                <i class="fas fa-building"></i> Profil entreprise
-            </a>
-            <a href="{% url 'account_logout' %}" class="logout-link">
-                <i class="fas fa-sign-out-alt"></i> Déconnexion
-            </a>
+            <a href="{% url 'stages:dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="{% url 'stages:stage_list' %}" class="{% if request.resolver_match.url_name == 'stage_list' %}active{% endif %}"><i class="fas fa-briefcase"></i> Mes Offres</a>
+            <a href="{% url 'stages:candidatures_list' %}" class="{% if request.resolver_match.url_name == 'candidatures_list' %}active{% endif %}"><i class="fas fa-users"></i> Candidatures</a>
+            <a href="{% url 'stages:messages' %}" class="{% if request.resolver_match.url_name == 'messages' %}active{% endif %}"><i class="fas fa-envelope"></i> Messagerie</a>
+            <a href="{% url 'stages:entreprise_profile' %}" class="{% if request.resolver_match.url_name == 'entreprise_profile' %}active{% endif %}"><i class="fas fa-user"></i> Profil</a>
+            <a href="{% url 'account_logout' %}" class="logout-link"><i class="fas fa-sign-out-alt"></i> Déconnexion</a>
         </nav>
     </aside>
 
     <!-- Main Content -->
     <main class="main-content-modern">
-        <!-- Header avec profil -->
-        <header class="header-modern">
-            <div class="profile-header">
-                {% if entreprise.logo %}
-                    <img src="{{ entreprise.logo.url }}" alt="Logo entreprise" class="avatar">
-                {% else %}
-                    <div class="avatar bg-primary text-white d-flex align-items-center justify-content-center">
-                        {{ entreprise.nom|slice:':2'|upper }}
-                    </div>
-                {% endif %}
-                <div class="profile-info">
-                    <span class="name">{{ entreprise.nom }}</span>
-                    <span class="status">Entreprise</span>
+        <!-- Header moderne aligné à droite -->
+        <div class="dashboard-header d-flex align-items-center mb-3 justify-content-end" style="gap:1.5rem;">
+            {% if entreprise.logo %}
+                <img src="{{ entreprise.logo.url }}" alt="Logo entreprise" class="rounded-circle" style="width:56px;height:56px;object-fit:cover;">
+            {% else %}
+                <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:56px;height:56px;font-size:1.3rem;">
+                    {{ entreprise.nom|slice:':2'|upper }}
                 </div>
+            {% endif %}
+            <div class="d-flex flex-column align-items-end" style="line-height:1;">
+                <span style="font-weight:600;font-size:1.15rem;">{{ entreprise.nom }}</span>
+                <span style="font-size:0.95rem;color:#888;">Entreprise</span>
             </div>
-            <a href="{% url 'stages:stage_create' %}" class="btn btn-primary rounded-pill">
-                <i class="fas fa-plus"></i> Publier une offre
-            </a>
-        </header>
-
+            <div class="dropdown">
+                <button class="notif-bell btn btn-link p-0 ms-3" type="button" id="notifDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="font-size:1.2rem;position:relative;">
+                    <i class="fas fa-bell"></i>
+                    {% if messages_non_lus > 0 %}
+                        <span class="badge bg-danger" style="position:absolute;top:-6px;right:-8px;">{{ messages_non_lus }}</span>
+                    {% endif %}
+                </button>
+                <!-- Dropdown notifications (optionnel) -->
+            </div>
+        </div>
+        <!-- Banner moderne -->
+        <div class="banner-modern">
+            <div>
+                <h2>Bienvenue, {{ entreprise.nom }} !</h2>
+                <p>Gérez vos offres, suivez vos candidatures et boostez votre recrutement avec CareerStep.</p>
+            </div>
+            <img src="{% static 'images/Team work-bro.svg' %}" alt="Illustration" class="banner-illu">
+        </div>
         <!-- Statistiques principales -->
         <div class="stat-cards-grid">
             <a href="{% url 'stages:stage_list' %}" class="stat-card">
@@ -342,7 +329,7 @@
                 </div>
                 <div class="stat-info">
                     <div class="stat-label">Offres actives</div>
-                    <div class="stat-value">{{ offres_actives_count }}</div>
+                    <div class="stat-value">{{ offres_actives_count|default:"0" }}</div>
                 </div>
             </a>
             <a href="{% url 'stages:candidatures_list' %}" class="stat-card">
@@ -351,7 +338,7 @@
                 </div>
                 <div class="stat-info">
                     <div class="stat-label">Candidatures ce mois</div>
-                    <div class="stat-value">{{ candidatures_mois_count }}</div>
+                    <div class="stat-value">{{ candidatures_mois_count|default:"0" }}</div>
                 </div>
             </a>
             <a href="{% url 'stages:messages' %}" class="stat-card">
@@ -360,7 +347,7 @@
                 </div>
                 <div class="stat-info">
                     <div class="stat-label">Messages non lus</div>
-                    <div class="stat-value">{{ messages_non_lus }}</div>
+                    <div class="stat-value">{{ messages_non_lus|default:"0" }}</div>
                 </div>
             </a>
         </div>
@@ -389,21 +376,39 @@
                         <tbody>
                             {% for candidature in candidatures_recentes %}
                             <tr>
-                                <td>{{ candidature.etudiant.get_full_name }}</td>
-                                <td>{{ candidature.stage.titre }}</td>
-                                <td>{{ candidature.date_candidature|date:"d/m/Y" }}</td>
                                 <td>
-                                    <span class="status-badge status-{{ candidature.statut }}">
-                                        {{ candidature.get_statut_display }}
+                                    {% if candidature.etudiant.get_full_name %}
+                                        {{ candidature.etudiant.get_full_name }}
+                                    {% else %}
+                                        {{ candidature.etudiant }}
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if candidature.stage.titre %}
+                                        {{ candidature.stage.titre }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if candidature.date_candidature %}
+                                        {{ candidature.date_candidature|date:"d/m/Y" }}
+                                    {% else %}
+                                        -
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <span class="status-badge status-{{ candidature.statut|default_if_none:"en_attente" }}">
+                                        {{ candidature.get_statut_display|default:"En attente" }}
                                     </span>
                                 </td>
                                 <td>
                                     <div class="btn-group">
-                                        <a href="{% url 'stages:candidature_detail' candidature.pk %}" 
+                                        <a href="{% url 'stages:candidature_detail' candidature.pk %}"
                                            class="btn btn-sm btn-outline-primary rounded-pill">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{% url 'stages:contact_etudiant' candidature.etudiant.pk %}" 
+                                        <a href="{% url 'stages:contact_etudiant' candidature.etudiant.profile.etudiant.pk %}"
                                            class="btn btn-sm btn-outline-info rounded-pill">
                                             <i class="fas fa-envelope"></i>
                                         </a>
@@ -423,30 +428,22 @@
             <!-- Panneau des statistiques -->
             <div class="dashboard-panel">
                 <div class="panel-header">
-                    <h5>Statistiques</h5>
+                    <h5>Répartition H/F des candidatures du mois</h5>
                 </div>
-                <!-- Graphique des offres -->
-                <canvas id="offresChart" 
-                    data-offres-actives="{{ offres_actives_count }}" 
-                    data-offres-pourvues="{{ offres_pourvues_count }}">
-                </canvas>
-                
-                <!-- Répartition H/F -->
-                <div class="mt-4">
-                    <h6 class="mb-3">Répartition H/F des candidatures</h6>
-                    <div class="gender-distribution">
-                        <span class="gender-label">Hommes</span>
-                        <div class="gender-bar">
-                            <div class="gender-fill" style="width: {{ pourcentage_hommes }}%;"></div>
-                        </div>
-                        <span>{{ pourcentage_hommes }}%</span>
+                <div style="width:100%;height:300px;">
+                    <canvas id="candidaturesGenreChart"
+                        data-femmes="{{ candidatures_femmes_mois|default:'0' }}"
+                        data-hommes="{{ candidatures_hommes_mois|default:'0' }}"
+                        style="width:100%;height:100%;"></canvas>
+                </div>
+                <div class="gender-distribution mt-3">
+                    <span class="gender-label">Femmes : {{ pourcentage_femmes_mois }}%</span>
+                    <div class="gender-bar">
+                        <div class="gender-fill" style="width: {{ pourcentage_femmes_mois }}%; background: #e75480;"></div>
                     </div>
-                    <div class="gender-distribution">
-                        <span class="gender-label">Femmes</span>
-                        <div class="gender-bar">
-                            <div class="gender-fill" style="width: {{ pourcentage_femmes }}%;"></div>
-                        </div>
-                        <span>{{ pourcentage_femmes }}%</span>
+                    <span class="gender-label">Hommes : {{ pourcentage_hommes_mois }}%</span>
+                    <div class="gender-bar">
+                        <div class="gender-fill" style="width: {{ pourcentage_hommes_mois }}%; background: #3556a8;"></div>
                     </div>
                 </div>
             </div>
@@ -455,33 +452,34 @@
 </div>
 
 <script>
-// Graphique répartition des offres
-const ctx = document.getElementById('offresChart');
-if (ctx) {
-    const offresActives = parseInt(ctx.dataset.offresActives || '0');
-    const offresPourvues = parseInt(ctx.dataset.offresPourvues || '0');
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Actives', 'Pourvues'],
-            datasets: [{
-                data: [offresActives, offresPourvues],
-                backgroundColor: ['#3b5cb8', '#e8f0fe'],
-                borderWidth: 0
-            }]
-        },
-        options: {
-            cutout: '70%',
-            plugins: { 
-                legend: { 
-                    display: true, 
-                    position: 'bottom' 
-                }
+document.addEventListener('DOMContentLoaded', function() {
+    // Bar chart répartition H/F du mois
+    const genreCtx = document.getElementById('candidaturesGenreChart');
+    if (genreCtx) {
+        const femmes = parseInt(genreCtx.dataset.femmes || '0');
+        const hommes = parseInt(genreCtx.dataset.hommes || '0');
+        new Chart(genreCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Femmes', 'Hommes'],
+                datasets: [{
+                    label: 'Candidatures',
+                    data: [femmes, hommes],
+                    backgroundColor: ['#e75480', '#3556a8'],
+                    borderRadius: 8,
+                    maxBarThickness: 60
+                }]
             },
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
-}
+            options: {
+                plugins: { legend: { display: false } },
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true, ticks: { precision:0 } }
+                }
+            }
+        });
+    }
+});
 </script>
 {% endblock %}
